@@ -8,8 +8,6 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from sentence_transformers import SentenceTransformer
-
 from backend.config import EMBEDDING_MODEL
 from backend.utils.logger import get_logger
 
@@ -17,8 +15,9 @@ logger = get_logger(__name__)
 
 
 @lru_cache(maxsize=1)
-def _load_model() -> SentenceTransformer:
-    """Load and cache the embedding model (singleton)."""
+def _load_model():
+    """Lazy-load and cache the embedding model (singleton)."""
+    from sentence_transformers import SentenceTransformer  # lazy — avoids ~4s import on startup
     logger.info("Loading embedding model: %s", EMBEDDING_MODEL)
     return SentenceTransformer(EMBEDDING_MODEL)
 

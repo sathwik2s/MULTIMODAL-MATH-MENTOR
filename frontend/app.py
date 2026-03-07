@@ -19,6 +19,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 # ── Disable OpenTelemetry SDK (avoids Python 3.13 hang with chromadb) ────────
 os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 
+import threading as _threading
 import streamlit as st
 
 # ── Page config (must be first Streamlit call) ──────────────────────────────
@@ -28,6 +29,22 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# ── Background pre-warm: load heavy singletons once while UI renders ─────────
+def _prewarm() -> None:
+    """Load embedding model + ChromaDB in a background thread so the first
+    'Solve' click is instant instead of waiting 5-8 s for cold initialisation."""
+    try:
+        from backend.rag.embeddings import _load_model
+        _load_model()
+        from backend.rag.ingest import get_collection
+        get_collection()
+    except Exception:
+        pass  # non-fatal — models will still lazy-load on first use
+
+if not st.session_state.get("_prewarmed"):
+    st.session_state["_prewarmed"] = True
+    _threading.Thread(target=_prewarm, daemon=True).start()
 
 # ── Session state defaults ───────────────────────────────────────────────────
 for key, default in {

@@ -11,9 +11,6 @@ import hashlib
 from pathlib import Path
 from typing import List
 
-import chromadb
-from chromadb.config import Settings as ChromaSettings
-
 from backend.config import CHROMA_PERSIST_DIR, KNOWLEDGE_BASE_DIR, CHUNK_SIZE, CHUNK_OVERLAP
 from backend.rag.embeddings import embed_texts
 from backend.utils.logger import get_logger
@@ -38,8 +35,10 @@ def _chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OV
 
 # ── ChromaDB helpers ─────────────────────────────────────────────────────────
 
-def _get_chroma_client() -> chromadb.ClientAPI:
+def _get_chroma_client():
     """Return a persistent ChromaDB client."""
+    import chromadb  # lazy — avoids ~2s import on startup
+    from chromadb.config import Settings as ChromaSettings
     Path(CHROMA_PERSIST_DIR).mkdir(parents=True, exist_ok=True)
     return chromadb.PersistentClient(
         path=CHROMA_PERSIST_DIR,
@@ -47,7 +46,7 @@ def _get_chroma_client() -> chromadb.ClientAPI:
     )
 
 
-def get_collection() -> chromadb.Collection:
+def get_collection():
     """Get or create the knowledge-base collection."""
     client = _get_chroma_client()
     return client.get_or_create_collection(
