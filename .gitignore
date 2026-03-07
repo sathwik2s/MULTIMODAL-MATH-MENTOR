@@ -1,9 +1,21 @@
+# Secrets & environment
 .env
+
+# Runtime-generated data
 data/chroma_db/
 data/memory.db
 data/app.log
+
+# Runtime-generated outputs (manim scripts, videos, media)
+outputs/**
+!outputs/**/
+!outputs/**/.gitkeep
+
+# Python artifacts
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 .venv/
 venv/
 *.egg-info/
@@ -11,3 +23,13 @@ dist/
 build/
 .mypy_cache/
 .pytest_cache/
+*.log
+
+# IDE / editor configs
+.vscode/
+.idea/
+pyrightconfig.json
+
+# OS artifacts
+.DS_Store
+Thumbs.db
