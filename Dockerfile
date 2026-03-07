@@ -47,11 +47,12 @@ RUN python -m backend.rag.ingest || true
 EXPOSE 8501
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
-    CMD curl --fail http://localhost:8501/_stcore/health || exit 1
+    CMD curl --fail http://localhost:${PORT:-8501}/_stcore/health || exit 1
 
-ENTRYPOINT ["streamlit", "run", "frontend/app.py", \
-    "--server.port=8501", \
-    "--server.address=0.0.0.0", \
-    "--server.headless=true", \
-    "--server.fileWatcherType=none", \
-    "--server.maxUploadSize=50"]
+# Use shell form so $PORT is expanded at runtime (Render sets PORT=10000)
+CMD streamlit run frontend/app.py \
+    --server.port=${PORT:-8501} \
+    --server.address=0.0.0.0 \
+    --server.headless=true \
+    --server.fileWatcherType=none \
+    --server.maxUploadSize=50
