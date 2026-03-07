@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from backend.main import run_pipeline
-from backend.rag.ingest import ingest_knowledge_base
+from backend.rag.ingest import ingest_directory
 from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -90,7 +90,7 @@ def solve(req: SolveRequest) -> Dict[str, Any]:
 @app.post("/api/v1/ingest", tags=["Admin"])
 def trigger_ingest(background_tasks: BackgroundTasks):
     """Re-ingest the knowledge base into ChromaDB (admin endpoint)."""
-    background_tasks.add_task(ingest_knowledge_base)
+    background_tasks.add_task(ingest_directory)
     return {"status": "queued", "message": "Knowledge base ingestion started in background."}
 
 
