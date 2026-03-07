@@ -6,10 +6,13 @@ Includes API key configuration, knowledge-base ingestion and recent problem hist
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 
 import streamlit as st
+
+logger = logging.getLogger(__name__)
 
 from backend.rag.ingest import ingest_directory
 from backend.memory.memory_store import get_recent_records
