@@ -1,0 +1,46 @@
+# Differential Equations — Key Concepts for JEE
+
+## First Order ODE
+
+### Variable Separable
+dy/dx = f(x)g(y)  →  ∫ dy/g(y) = ∫ f(x) dx + C
+
+### Homogeneous Equations
+dy/dx = F(y/x)
+Substitution: y = vx, dy/dx = v + x(dv/dx)
+
+### Linear First Order
+dy/dx + P(x)y = Q(x)
+Integrating factor: μ = e^(∫P(x)dx)
+Solution: y × μ = ∫ Q(x) × μ dx + C
+
+### Bernoulli Equation
+dy/dx + P(x)y = Q(x)yⁿ
+Substitution: v = y^(1-n), reduces to linear
+
+### Exact Equations
+M(x,y)dx + N(x,y)dy = 0 is exact if ∂M/∂y = ∂N/∂x
+
+## Second Order ODE (Constant Coefficients)
+ay'' + by' + cy = 0
+
+Characteristic equation: ar² + br + c = 0
+
+Case 1: Two distinct real roots r₁, r₂
+y = C₁e^(r₁x) + C₂e^(r₂x)
+
+Case 2: Repeated root r
+y = (C₁ + C₂x)e^(rx)
+
+Case 3: Complex roots α ± βi
+y = e^(αx)(C₁cos(βx) + C₂sin(βx))
+
+## Applications
+- Growth/decay: dy/dt = ky → y = y₀e^(kt)
+- Newton's law of cooling: dT/dt = -k(T - Tₛ)
+- Logistic growth: dP/dt = rP(1 - P/K) → P = K/(1 + (K/P₀ - 1)e^(-rt))
+
+## Order and Degree
+- Order: highest order derivative present
+- Degree: power of highest order derivative (when equation is polynomial in derivatives)
+- Note: degree is not defined if derivatives appear in non-polynomial form (e.g. sin(y'), e^(y'))

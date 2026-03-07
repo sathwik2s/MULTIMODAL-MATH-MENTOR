@@ -1,0 +1,39 @@
+# Complex Numbers — Key Concepts for JEE
+
+## Basics
+- i = √(-1), i² = -1, i³ = -i, i⁴ = 1
+- z = a + bi where a = Re(z), b = Im(z)
+- Complex conjugate: z̄ = a - bi
+- Modulus: |z| = √(a² + b²)
+- Argument: arg(z) = arctan(b/a) (with quadrant consideration)
+
+## Polar Form
+z = r(cosθ + i sinθ) = r·e^(iθ)  (Euler's formula)
+where r = |z|, θ = arg(z)
+
+## Operations
+- z₁z₂: multiply moduli, add arguments
+- z₁/z₂: divide moduli, subtract arguments
+- |z₁z₂| = |z₁||z₂|
+- arg(z₁z₂) = arg(z₁) + arg(z₂)
+
+## Properties
+- z·z̄ = |z|²
+- z + z̄ = 2Re(z)
+- z - z̄ = 2iIm(z)
+- |z₁ + z₂|² = |z₁|² + |z₂|² + 2Re(z₁z̄₂)
+- Triangle inequality: |z₁ + z₂| ≤ |z₁| + |z₂|
+
+## De Moivre's Theorem
+(cosθ + i sinθ)ⁿ = cos(nθ) + i sin(nθ)
+
+## nth Roots of Unity
+zⁿ = 1 → z = e^(2πik/n) for k = 0, 1, …, n-1
+- Sum of all nth roots of unity = 0
+- Product of all nth roots of unity = (-1)^(n+1)
+
+## Geometry in Complex Plane
+- |z - z₀| = r represents a circle with centre z₀ and radius r
+- |z - z₁| = |z - z₂| represents perpendicular bisector of segment z₁z₂
+- arg(z - z₀) = α represents a ray from z₀ making angle α
+- |z - z₁| + |z - z₂| = 2a represents an ellipse (when 2a > |z₁ - z₂|)

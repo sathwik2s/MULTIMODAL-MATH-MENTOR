@@ -1,0 +1,9 @@
+{
+  "exclude": [
+    "outputs/**",
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*"
+  ],
+  "reportMissingModuleSource": "none"
+}

@@ -1,0 +1,49 @@
+# Algebra — Key Formulas and Concepts for JEE
+
+## Quadratic Equations
+A quadratic equation has the form ax² + bx + c = 0 where a ≠ 0.
+
+### Quadratic Formula
+x = (-b ± √(b² - 4ac)) / (2a)
+
+### Discriminant
+D = b² - 4ac
+- D > 0: Two distinct real roots
+- D = 0: Two equal real roots (one repeated root)
+- D < 0: No real roots (two complex conjugate roots)
+
+### Vieta's Formulas
+For ax² + bx + c = 0 with roots α, β:
+- Sum of roots: α + β = -b/a
+- Product of roots: αβ = c/a
+
+## Arithmetic Progression (AP)
+- nth term: aₙ = a + (n-1)d
+- Sum of n terms: Sₙ = n/2 × (2a + (n-1)d) = n/2 × (first + last)
+
+## Geometric Progression (GP)
+- nth term: aₙ = a × rⁿ⁻¹
+- Sum of n terms: Sₙ = a(rⁿ - 1)/(r - 1) for r ≠ 1
+- Sum to infinity (|r| < 1): S∞ = a/(1-r)
+
+## Binomial Theorem
+(a + b)ⁿ = Σ C(n,k) × aⁿ⁻ᵏ × bᵏ for k = 0 to n
+where C(n,k) = n! / (k!(n-k)!)
+
+General term: T(r+1) = C(n,r) × aⁿ⁻ʳ × bʳ
+
+## Logarithms
+- log_a(xy) = log_a(x) + log_a(y)
+- log_a(x/y) = log_a(x) - log_a(y)
+- log_a(xⁿ) = n × log_a(x)
+- Change of base: log_a(x) = log_b(x) / log_b(a)
+
+## Inequalities
+- AM ≥ GM ≥ HM for positive reals
+- AM = (a+b)/2, GM = √(ab), HM = 2ab/(a+b)
+- Cauchy-Schwarz: (Σaᵢbᵢ)² ≤ (Σaᵢ²)(Σbᵢ²)
+
+## Polynomials
+- Factor theorem: (x-a) is a factor of P(x) iff P(a) = 0
+- Remainder theorem: P(x) divided by (x-a) gives remainder P(a)
+- Fundamental theorem of algebra: degree n polynomial has exactly n roots (counting multiplicity, in ℂ)
