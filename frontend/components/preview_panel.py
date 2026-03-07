@@ -11,13 +11,17 @@ import os
 import streamlit as st
 
 from backend.utils.confidence import classify_confidence
-from backend.main import run_pipeline
 
 
 def _api_key_ready() -> bool:
     """Return True when a non-placeholder API key is present in the environment."""
     provider = os.environ.get("LLM_PROVIDER", "openai")
-    env_map = {"openai": "OPENAI_API_KEY", "groq": "GROQ_API_KEY", "anthropic": "ANTHROPIC_API_KEY"}
+    env_map = {
+        "openai": "OPENAI_API_KEY",
+        "groq": "GROQ_API_KEY",
+        "anthropic": "ANTHROPIC_API_KEY",
+        "gemini": "GEMINI_API_KEY",
+    }
     key = os.environ.get(env_map.get(provider, "OPENAI_API_KEY"), "")
     return bool(key) and not key.strip().endswith("...")
 
@@ -61,6 +65,7 @@ def render_preview_panel() -> None:
             return
         with st.spinner("Running multi-agent pipeline…"):
             try:
+                from backend.main import run_pipeline  # lazy import — avoids circular import at module load
                 pipeline_result = run_pipeline(
                     text=edited_text or "",
                     input_type=st.session_state.input_type,

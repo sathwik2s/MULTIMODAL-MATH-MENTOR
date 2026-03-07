@@ -10,7 +10,6 @@ import streamlit as st
 
 from backend.memory.memory_store import update_feedback
 from backend.hitl.human_review import approve_review, correct_review, reject_review
-from backend.main import run_pipeline
 
 
 def render_feedback_panel() -> None:
@@ -47,6 +46,7 @@ def render_feedback_panel() -> None:
         st.markdown('<div class="btn-info">', unsafe_allow_html=True)
         if st.button("🔄 Re-check", use_container_width=True, key="fb_recheck"):
             with st.spinner("Re-running pipeline…"):
+                from backend.main import run_pipeline  # lazy import — avoids circular import at module load
                 pipeline_result = run_pipeline(
                     text=st.session_state.extracted_text,
                     input_type=st.session_state.input_type,
