@@ -10,7 +10,7 @@ WORKDIR /app
 
 # System dependencies for OCR, audio processing, and Manim rendering
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     ffmpeg \
     libcairo2-dev \
