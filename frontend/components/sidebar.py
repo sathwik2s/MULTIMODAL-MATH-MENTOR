@@ -164,6 +164,7 @@ def render_sidebar() -> None:
 
         # RAG Knowledge Base ingestion
         st.subheader("📚 Knowledge Base")
+        st.markdown('<div class="btn-info">', unsafe_allow_html=True)
         if st.button("Ingest Knowledge Base", use_container_width=True):
             with st.spinner("Ingesting documents…"):
                 try:
@@ -172,6 +173,7 @@ def render_sidebar() -> None:
                     st.session_state.rag_ingested = True
                 except Exception as e:
                     st.error(f"Ingestion failed: {e}")
+        st.markdown('</div>', unsafe_allow_html=True)
 
         st.divider()
 

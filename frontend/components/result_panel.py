@@ -6,6 +6,7 @@ Displays the solution, RAG context, similar past problems, and confidence.
 
 from __future__ import annotations
 
+import html
 import streamlit as st
 
 from backend.utils.confidence import classify_confidence
@@ -38,7 +39,14 @@ def render_result_panel() -> None:
         final_answer = pr.solver_result.answer
 
     if final_answer:
-        st.success(f"### ✅ Final Answer\n\n**{final_answer}**")
+        safe_ans = html.escape(str(final_answer))
+        st.markdown(
+            f'<div class="answer-card">'
+            f'<div class="answer-label">✅ Final Answer</div>'
+            f'<div class="answer-value">{safe_ans}</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
     else:
         st.warning("No answer was produced. Check the agent trace for details.")
 
@@ -64,14 +72,19 @@ def render_result_panel() -> None:
 
             for step in pr.explanation.steps:
                 n = step.get("step_number", "?")
-                desc = step.get("description", "")
-                formula = step.get("formula_used", "")
-                result = step.get("result", "")
-                st.markdown(f"**Step {n}:** {desc}")
-                if formula:
-                    st.code(formula, language="text")
-                if result:
-                    st.caption(f"→ {result}")
+                desc = html.escape(str(step.get("description", "")))
+                formula = html.escape(str(step.get("formula_used", "")))
+                result_text = html.escape(str(step.get("result", "")))
+                formula_html = f'<div class="step-formula">{formula}</div>' if formula else ""
+                result_html = f'<div class="step-result">→ {result_text}</div>' if result_text else ""
+                st.markdown(
+                    f'<div class="step-card">'
+                    f'<div class="step-num">Step {n}</div>'
+                    f'<p class="step-desc">{desc}</p>'
+                    f'{formula_html}{result_html}'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
 
             # Key concepts
             if pr.explanation.key_concepts:

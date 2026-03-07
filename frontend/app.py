@@ -42,6 +42,7 @@ for key, default in {
         st.session_state[key] = default
 
 # ── Import and render all UI components ──────────────────────────────────────
+from frontend.components.styles import inject_custom_styles
 from frontend.components.sidebar import render_sidebar
 from frontend.components.input_panel import render_input_panel
 from frontend.components.preview_panel import render_preview_panel
@@ -64,10 +65,40 @@ def _api_key_ok() -> bool:
 # LAYOUT
 # ══════════════════════════════════════════════════════════════════════════════
 
+inject_custom_styles()
 render_sidebar()
 
-st.header("🧮 Multimodal Math Mentor")
-st.markdown("Upload a **math question** via text, image, or audio and get a verified, step-by-step solution.")
+st.markdown("""
+<div style="
+    background: linear-gradient(135deg, rgba(124,58,237,0.14) 0%, rgba(91,33,182,0.07) 100%);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.25rem;
+">
+    <h1 style="
+        background: linear-gradient(135deg, #a78bfa, #7c3aed);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0 0 0.4rem 0;
+        line-height: 1.2;
+    ">🧮 Multimodal Math Mentor</h1>
+    <p style="color:#94a3b8;font-size:0.97rem;margin:0 0 1rem 0;">
+        Upload a <strong style="color:#c4b5fd;">math question</strong> via
+        text&nbsp;✏️, image&nbsp;📷, or audio&nbsp;🎤 and get a verified,
+        step&#8209;by&#8209;step solution powered by multi&#8209;agent AI.
+    </p>
+    <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+        <span style="background:rgba(124,58,237,0.18);color:#c4b5fd;font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:999px;border:1px solid rgba(124,58,237,0.35);">🤖 Multi-Agent Pipeline</span>
+        <span style="background:rgba(5,150,105,0.15);color:#6ee7b7;font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:999px;border:1px solid rgba(5,150,105,0.3);">📚 RAG Knowledge Base</span>
+        <span style="background:rgba(37,99,235,0.15);color:#93c5fd;font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:999px;border:1px solid rgba(37,99,235,0.3);">👁️ LLM Vision OCR</span>
+        <span style="background:rgba(217,119,6,0.14);color:#fcd34d;font-size:0.72rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:999px;border:1px solid rgba(217,119,6,0.3);">🎬 Manim Visualizations</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 if not _api_key_ok():
     st.warning(
