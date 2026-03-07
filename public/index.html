@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Multimodal Math Mentor — AI-powered math tutoring with multi-agent pipeline, RAG, HITL, and step-by-step explanations." />
+  <title>Multimodal Math Mentor</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2d3148;
+      --accent: #6c63ff;
+      --accent-hover: #8b85ff;
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --green: #22c55e;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Nav ── */
+    nav {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand { font-weight: 700; font-size: 1.1rem; letter-spacing: -0.3px; }
+    .brand span { color: var(--accent); }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-left: 1.5rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 760px;
+      text-align: center;
+      padding: 5rem 2rem 3rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(108, 99, 255, 0.12);
+      border: 1px solid rgba(108, 99, 255, 0.3);
+      color: var(--accent-hover);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+    }
+    .badge .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 1.25rem;
+    }
+    h1 .highlight { color: var(--accent); }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(108,99,255,0.35);
+    }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Features ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      max-width: 1000px;
+      width: 100%;
+      padding: 3rem 2rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card-icon { font-size: 1.6rem; margin-bottom: 0.75rem; }
+    .card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .card p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── Stack ── */
+    .stack {
+      max-width: 1000px;
+      width: 100%;
+      padding: 0 2rem 3rem;
+    }
+    .stack h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; }
+    .pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+    }
+
+    /* ── API section ── */
+    .api-section {
+      max-width: 1000px;
+      width: 100%;
+      padding: 0 2rem 4rem;
+    }
+    .api-section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.83rem;
+      color: #c9d1d9;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    .code-block .k { color: #ff7b72; }
+    .code-block .s { color: #a5d6ff; }
+    .code-block .c { color: #8b949e; }
+
+    /* ── Footer ── */
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: auto;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="brand">Math<span>Mentor</span></div>
+    <div class="nav-links">
+      <a href="https://github.com/sathwik2s/MULTIMODAL-MATH-MENTOR" target="_blank">GitHub</a>
+      <a href="#api">API Docs</a>
+      <a href="https://math-mentor-app.onrender.com" target="_blank">Launch App →</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="badge"><span class="dot"></span> Live on Render</div>
+    <h1>
+      Your AI-Powered<br>
+      <span class="highlight">Multimodal Math Mentor</span>
+    </h1>
+    <p class="subtitle">
+      Solve, verify, and understand any math problem — text, image, or audio.
+      Powered by multi-agent AI, RAG, step-by-step explanations, and Manim visualizations.
+    </p>
+    <div class="cta-group">
+      <a class="btn btn-primary" href="https://math-mentor-app.onrender.com" target="_blank">
+        &#9654; Launch App
+      </a>
+      <a class="btn btn-secondary" href="https://github.com/sathwik2s/MULTIMODAL-MATH-MENTOR" target="_blank">
+        &#128196; View on GitHub
+      </a>
+    </div>
+  </section>
+
+  <div class="features">
+    <div class="card">
+      <div class="card-icon">&#129504;</div>
+      <h3>Multi-Agent Pipeline</h3>
+      <p>Parser → Router → Solver → Verifier → Explainer agents collaborating on every problem.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128248;</div>
+      <h3>Multimodal Input</h3>
+      <p>Upload a photo of handwritten math, speak your question, or type it. LLM Vision OCR handles it all.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128218;</div>
+      <h3>RAG Knowledge Base</h3>
+      <p>12-topic math corpus with ChromaDB vector retrieval for context-aware solving and explanations.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#127910;</div>
+      <h3>Manim Visualizations</h3>
+      <p>Animated step-by-step math videos generated via Manim CE for complex problems.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128101;</div>
+      <h3>Human-in-the-Loop</h3>
+      <p>Uncertain answers trigger HITL review. Experts can approve, reject, or refine solutions.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#128200;</div>
+      <h3>Session Memory</h3>
+      <p>SQLite + ChromaDB similarity search remembers past problems to avoid redundant computation.</p>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h2>Tech Stack</h2>
+    <div class="pills">
+      <span class="pill">Python 3.11</span>
+      <span class="pill">Streamlit</span>
+      <span class="pill">FastAPI</span>
+      <span class="pill">OpenAI GPT-4o</span>
+      <span class="pill">Groq LLaMA</span>
+      <span class="pill">Anthropic Claude</span>
+      <span class="pill">Google Gemini</span>
+      <span class="pill">ChromaDB</span>
+      <span class="pill">sentence-transformers</span>
+      <span class="pill">SymPy</span>
+      <span class="pill">Manim CE</span>
+      <span class="pill">EasyOCR</span>
+      <span class="pill">Whisper ASR</span>
+      <span class="pill">SQLite</span>
+      <span class="pill">Docker</span>
+      <span class="pill">Render</span>
+    </div>
+  </div>
+
+  <div class="api-section" id="api">
+    <h2>REST API</h2>
+    <div class="code-block">
+<span class="c"># POST /api/v1/solve — solve any math problem</span>
+<span class="k">curl</span> -X POST https://math-mentor-api.onrender.com/api/v1/solve \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"text": "Solve x^2 - 5x + 6 = 0", "input_type": "text"}'</span>
+
+<span class="c"># Interactive API docs</span>
+<span class="c"># https://math-mentor-api.onrender.com/docs</span>
+    </div>
+  </div>
+
+  <footer>
+    Built by <a href="https://github.com/sathwik2s" target="_blank">sathwik2s</a> &nbsp;·&nbsp;
+    <a href="https://github.com/sathwik2s/MULTIMODAL-MATH-MENTOR" target="_blank">GitHub</a> &nbsp;·&nbsp;
+    Deployed on <a href="https://render.com" target="_blank">Render</a>
+  </footer>
+
+</body>
+</html>
