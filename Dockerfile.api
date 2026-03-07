@@ -1,5 +1,5 @@
 # Lightweight Dockerfile for the FastAPI REST API backend only
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -10,14 +10,18 @@ WORKDIR /app
 # Minimal system deps (no manim/LaTeX/ffmpeg needed for API-only)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    gcc \
+    g++ \
     pkg-config \
     libgl1 \
     libglib2.0-0 \
+    libcairo2-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip wheel setuptools \
+    && pip install --no-cache-dir --prefer-binary -r requirements.txt
 
 RUN useradd -m -u 1000 appuser
 

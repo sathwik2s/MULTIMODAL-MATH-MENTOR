@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 # Production Python settings
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -11,6 +11,8 @@ WORKDIR /app
 # System dependencies for OCR, audio processing, and Manim rendering
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    gcc \
+    g++ \
     pkg-config \
     libgl1 \
     libglib2.0-0 \
@@ -24,7 +26,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Upgrade pip + wheel first, then install with --prefer-binary to avoid source compilation
+RUN pip install --upgrade pip wheel setuptools \
+    && pip install --no-cache-dir --prefer-binary -r requirements.txt
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser
