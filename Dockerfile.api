@@ -9,6 +9,8 @@ WORKDIR /app
 
 # Minimal system deps (no manim/LaTeX/ffmpeg needed for API-only)
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    pkg-config \
     libgl1 \
     libglib2.0-0 \
     curl \
