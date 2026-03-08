@@ -66,51 +66,58 @@ a clean, visually appealing, step-by-step animated explanation.
 3. Use ONLY these Mobject types:  `Text`, `MathTex`, `Tex`, `VGroup`,
    `SurroundingRectangle`, `Arrow`, `Axes`, `NumberPlane`.
 4. Every `MathTex`/`Tex` string MUST be a raw string:  r"...".
+   NEVER put $ or $$ inside a MathTex string — it's already in math mode.
 5. Keep each `MathTex` expression SHORT (≤ 60 chars).  If an equation is
-   long, break it into separate `MathTex` objects and stack them with
+   long, break it into SEPARATE `MathTex` objects stacked with
    `VGroup(...).arrange(DOWN, buff=0.4)`.
-6. Use `.scale(0.7)` or `font_size=36` for any Text/MathTex that could
-   overflow the screen.
-7. Before showing a new element, `FadeOut` or `Uncreate` the previous one
-   so the screen never gets cluttered.
-8. Animations to use: `Write`, `FadeIn`, `FadeOut`, `Transform`,
+6. Use `font_size=36` on every `MathTex`, and `font_size=32` on every `Text`
+   that is not a title.  Every title must use `font_size=40`.
+7. For parentheses INSIDE a MathTex LaTeX string always use
+   `\\left(` and `\\right)` — e.g. r"\\left(x + 1\\right)^2".
+   NEVER write bare ( ) characters inside a MathTex string argument.
+8. Before showing a new element, `FadeOut` the previous one so the screen
+   never gets cluttered.
+9. Animations to use: `Write`, `FadeIn`, `FadeOut`, `Transform`,
    `ReplacementTransform`, `Create`, `Indicate`.
-9. Color scheme: BLUE for formulas, GREEN for final answers, YELLOW for
-   highlights, WHITE for plain text.
-10. Total animation: 15-30 seconds.  Use `self.wait(1)` between steps,
+10. Color scheme: BLUE for formulas, GREEN for final answers, YELLOW for
+    highlights, WHITE for plain text.
+    Color constants are ALL CAPS: BLUE, GREEN, YELLOW, WHITE, RED, ORANGE.
+    NEVER use quoted color strings like color="blue" — always color=BLUE.
+11. Total animation: 15-30 seconds.  Use `self.wait(1)` between steps,
     `self.wait(2)` at the end.
-11. Final answer: show inside a `SurroundingRectangle` with GREEN color.
-12. DO NOT use `Title(...)` — use `Text(..., font_size=40)` placed at `UP*3`.
-13. DO NOT use `ax.plot()` — use `ax.plot_line_graph` or `ax.get_graph` if
-    you need a function graph.
-14. DO NOT use `use_container_width` or any Streamlit API.
-15. Output ONLY the Python code — no markdown fences, no explanations.
+12. Final answer: show inside a `SurroundingRectangle` with GREEN color.
+13. DO NOT use `Title(...)` — use `Text("...", font_size=40).to_edge(UP)`.
+14. For function curves: `axes.plot(lambda x: expression, x_range=[a, b])`.
+    For discrete point sets: `axes.plot_line_graph(x_values=[...], y_values=[...])`.
+15. DO NOT import or use any Streamlit API.
+16. Output ONLY the Python code — no markdown fences, no explanations.
 
 ── TEMPLATE STRUCTURE ─────────────────────────────────────────────
 from manim import *
 
 class MathSolution(Scene):
     def construct(self):
-        # 1. Title
+        # 1. Title (always text, never Title class)
         title = Text("Problem Title Here", font_size=40).to_edge(UP)
         self.play(Write(title))
         self.wait(0.5)
 
-        # 2. Show problem
-        problem = MathTex(r"...", font_size=36).next_to(title, DOWN, buff=0.5)
+        # 2. Show problem statement
+        problem = MathTex(r"ax^2 + bx + c = 0", font_size=36).next_to(title, DOWN, buff=0.5)
         self.play(FadeIn(problem))
         self.wait(1)
 
-        # 3. Solution steps (clear previous, show new)
+        # 3. Solution steps — clear previous before showing next
         self.play(FadeOut(problem))
-        step1 = MathTex(r"...", font_size=36)
+        step1 = MathTex(r"x = \\frac{{-b \\pm \\sqrt{{b^2-4ac}}}}{{2a}}", font_size=36)
         self.play(Write(step1))
         self.wait(1)
 
-        # ... more steps ...
+        # ... more steps following the same fade-out / show pattern ...
 
-        # Final answer with box
-        answer = MathTex(r"...", color=GREEN, font_size=44)
+        # Final answer with surrounding box
+        self.play(FadeOut(step1))
+        answer = MathTex(r"x = 2, \\quad x = 3", color=GREEN, font_size=44)
         box = SurroundingRectangle(answer, color=GREEN, buff=0.2)
         self.play(FadeIn(answer), Create(box))
         self.wait(2)
@@ -126,6 +133,7 @@ class VisualizationResult:
     script_content: str = ""
     success: bool = False
     error: str = ""
+    render_stderr: str = ""  # Manim process output for debugging
 
 
 def _generate_manim_script(
@@ -184,66 +192,112 @@ def _generate_manim_script(
 def _sanitize_manim_script(script: str) -> str:
     """Auto-fix common Manim script issues produced by LLMs."""
 
-    # 1. Replace Title(...) with Text(..., font_size=40).to_edge(UP)
-    #    Handles both Title("...") and Title(r"...")
+    # 1. Ensure 'from manim import *' is present (rule 1)
+    if 'from manim import' not in script:
+        script = 'from manim import *\n\n' + script
+
+    # 2. Replace Title(...) with Text(..., font_size=40).to_edge(UP)
+    #    Only when the title argument has no nested parentheses to be safe.
     script = re.sub(
-        r'Title\(([^)]+)\)',
+        r'\bTitle\(([^()]+)\)',
         r'Text(\1, font_size=40).to_edge(UP)',
         script,
     )
 
-    # 2. Remove $ and $$ delimiters from inside MathTex/Tex calls
-    #    MathTex is ALREADY math mode — dollar signs cause rendering errors
-    def _strip_dollars_in_mathtex(m: re.Match) -> str:
-        prefix = m.group(1)  # "MathTex(" or "Tex("
-        inner = m.group(2)   # everything inside the call
-        suffix = m.group(3)  # closing ")"
-        # Strip $$ first then $, only from string contents
-        inner = re.sub(r'\$\$', '', inner)
-        inner = re.sub(r'\$', '', inner)
-        return prefix + inner + suffix
+    # 3. Remove $ and $$ delimiters from MathTex/Tex string args.
+    #    MathTex is already in LaTeX math mode — dollar signs cause errors.
+    #    We scan character-by-character to handle nested parens correctly.
+    def _strip_dollars_from_mathtex(script: str) -> str:
+        result: list[str] = []
+        i = 0
+        pattern = re.compile(r'\b(MathTex|Tex)\s*\(')
+        while i < len(script):
+            m = pattern.search(script, i)
+            if not m:
+                result.append(script[i:])
+                break
+            result.append(script[i:m.end()])  # everything up to and including the opening (
+            # Now find the matching closing paren using a depth counter
+            depth = 1
+            j = m.end()
+            while j < len(script) and depth > 0:
+                if script[j] == '(':
+                    depth += 1
+                elif script[j] == ')':
+                    depth -= 1
+                j += 1
+            # script[m.end():j-1] is the content inside MathTex(...)
+            inner = script[m.end():j - 1]
+            inner = inner.replace('$$', '').replace('$', '')
+            result.append(inner + ')')
+            i = j
+        return ''.join(result)
 
-    script = re.sub(
-        r'((?:MathTex|Tex)\s*\()(.+?)(\))',
-        _strip_dollars_in_mathtex,
-        script,
-    )
+    script = _strip_dollars_from_mathtex(script)
 
-    # 3. Replace deprecated ax.plot() with ax.plot_line_graph()
-    script = script.replace('.plot(', '.plot_line_graph(')
+    # 4. Fix color='string' → color=UPPER_CONSTANT (e.g., color='blue' → color=BLUE)
+    def _fix_color_string(m: re.Match) -> str:
+        return f', color={m.group(1).upper()}'
 
-    # 4. Ensure 'from manim import *' is the first import line
-    if 'from manim import' not in script:
-        script = 'from manim import *\n\n' + script
+    script = re.sub(r',\s*color=["\']([A-Za-z_]+)["\']', _fix_color_string, script)
 
     # 5. Remove any accidental streamlit imports
     script = re.sub(r'^.*import streamlit.*$', '', script, flags=re.MULTILINE)
 
-    # 6. Add font_size to MathTex calls that don't have it
-    def _add_font_size(m: re.Match) -> str:
-        call = m.group(0)
-        if 'font_size' in call or 'scale' in call:
-            return call
-        # Insert font_size before closing paren
-        return call[:-1] + ', font_size=36)'
-
+    # 6. Remove extra non-Manim imports (numpy, sympy, etc. — not permitted by rule 1)
     script = re.sub(
-        r'MathTex\([^)]+\)',
-        _add_font_size,
+        r'^(?!from manim import).*\bimport (?:numpy|sympy|math|matplotlib)\b.*$',
+        '',
         script,
+        flags=re.MULTILINE,
     )
-
-    # 7. Remove any extra import lines (LLM sometimes adds numpy, sympy, etc.)
-    script = re.sub(r'^(?!from manim import).*import (?:numpy|sympy|math|matplotlib).*$', '',
-                    script, flags=re.MULTILINE)
 
     return script
 
 
-def _render_video(script_content: str, script_path: Path) -> Optional[str]:
+def _ensure_ffmpeg_in_env(env: dict) -> None:
+    """Add ffmpeg to the subprocess environment PATH so Manim can combine frames."""
+    import shutil
+
+    if shutil.which("ffmpeg", path=env.get("PATH")):
+        return  # already available
+
+    # Try imageio_ffmpeg (bundled with Manim's dependencies)
+    try:
+        import imageio_ffmpeg  # type: ignore
+        ffmpeg_exe = Path(imageio_ffmpeg.get_ffmpeg_exe())
+        if ffmpeg_exe.exists():
+            ffmpeg_dir = str(ffmpeg_exe.parent)
+            env["IMAGEIO_FFMPEG_EXE"] = str(ffmpeg_exe)
+            env["FFMPEG_BINARY"] = str(ffmpeg_exe)
+            if ffmpeg_dir not in env.get("PATH", ""):
+                env["PATH"] = ffmpeg_dir + os.pathsep + env.get("PATH", "")
+            logger.info("Using imageio ffmpeg: %s", ffmpeg_exe)
+            return
+    except (ImportError, Exception):
+        pass
+
+    # Common Windows installation paths
+    for candidate_dir in [
+        r"C:\ffmpeg\bin",
+        r"C:\Program Files\ffmpeg\bin",
+        r"C:\Program Files (x86)\ffmpeg\bin",
+        r"C:\ProgramData\chocolatey\bin",
+        r"C:\tools\ffmpeg\bin",
+    ]:
+        candidate = Path(candidate_dir) / "ffmpeg.exe"
+        if candidate.exists():
+            env["PATH"] = candidate_dir + os.pathsep + env.get("PATH", "")
+            env["IMAGEIO_FFMPEG_EXE"] = str(candidate)
+            env["FFMPEG_BINARY"] = str(candidate)
+            logger.info("Found Windows ffmpeg at: %s", candidate)
+            return
+
+
+def _render_video(script_content: str, script_path: Path) -> tuple[Optional[str], str]:
     """Save the script and run Manim CLI to render it.
 
-    Returns the path to the rendered video, or None on failure.
+    Returns (video_path_or_None, combined_stdout_stderr).
     """
     import subprocess
     import sys
@@ -251,50 +305,61 @@ def _render_video(script_content: str, script_path: Path) -> Optional[str]:
     script_path.write_text(script_content, encoding="utf-8")
     logger.info("Manim script saved to %s", script_path)
 
-    # Use a dedicated media dir per script to avoid cache-lock conflicts
     media_dir = VIDEOS_DIR / "media"
     media_dir.mkdir(parents=True, exist_ok=True)
 
-    # Run manim rendering
+    # Build subprocess env with ffmpeg on PATH
+    env = os.environ.copy()
+    _ensure_ffmpeg_in_env(env)
+
     cmd = [
         sys.executable, "-m", "manim",
         "render",
-        "-ql",                          # low quality for speed
+        "-ql",                   # 480p15 — fast render
         "--format", "mp4",
-        "--disable_caching",            # avoid TeX file-lock issues on Windows
+        "--disable_caching",     # avoid TeX file-lock races on Windows
         "--media_dir", str(media_dir),
         str(script_path),
         "MathSolution",
     ]
 
     logger.info("Running Manim: %s", " ".join(cmd))
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        timeout=120,
-        cwd=str(script_path.parent),
-        env=os.environ.copy(),
-    )
+    try:
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=180,
+            cwd=str(script_path.parent),
+            env=env,
+        )
+    except subprocess.TimeoutExpired:
+        msg = "Manim rendering timed out after 180 seconds."
+        logger.error(msg)
+        return None, msg
 
-    if result.returncode != 0:
-        logger.error("Manim render failed:\nstdout: %s\nstderr: %s", result.stdout, result.stderr)
-        return None
+    combined = f"=== STDOUT ===\n{proc.stdout}\n=== STDERR ===\n{proc.stderr}"
 
-    # Find the output video: Manim writes to <media>/videos/<script_stem>/480p15/MathSolution.mp4
+    if proc.returncode != 0:
+        logger.error("Manim render failed (exit %d):\n%s", proc.returncode, combined)
+        return None, combined
+
+    logger.info("Manim finished successfully.")
+
+    # Locate the rendered mp4
+    # Manim writes to: <media_dir>/videos/<script_stem>/480p15/MathSolution.mp4
     video_dir = media_dir / "videos" / script_path.stem / "480p15"
     if video_dir.exists():
-        mp4s = list(video_dir.glob("*.mp4"))
+        mp4s = sorted(video_dir.glob("*.mp4"), key=lambda p: p.stat().st_mtime, reverse=True)
         if mp4s:
-            return str(mp4s[0])
+            return str(mp4s[0]), combined
 
-    # Fallback: search recursively for any mp4 produced recently
-    mp4s = list(media_dir.glob("**/*.mp4"))
-    if mp4s:
-        mp4s.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-        return str(mp4s[0])
+    # Fallback: most-recently-modified mp4 anywhere under media_dir
+    all_mp4s = sorted(media_dir.glob("**/*.mp4"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if all_mp4s:
+        return str(all_mp4s[0]), combined
 
-    return None
+    return None, combined + "\n\n[No .mp4 produced despite exit code 0]"
 
 
 def generate_visualization(
@@ -318,7 +383,7 @@ def generate_visualization(
     script_path = SCRIPTS_DIR / script_name
 
     try:
-        # 1. Generate script
+        # 1. Generate script via LLM
         script_content = _generate_manim_script(parsed, solver_result, explanation)
         if not script_content or "class MathSolution" not in script_content:
             return VisualizationResult(
@@ -328,7 +393,7 @@ def generate_visualization(
             )
 
         # 2. Render video
-        video_path = _render_video(script_content, script_path)
+        video_path, render_stderr = _render_video(script_content, script_path)
 
         if video_path:
             logger.info("Visualization rendered: %s", video_path)
@@ -337,13 +402,15 @@ def generate_visualization(
                 script_path=str(script_path),
                 script_content=script_content,
                 success=True,
+                render_stderr=render_stderr,
             )
         else:
             return VisualizationResult(
                 script_path=str(script_path),
                 script_content=script_content,
                 success=False,
-                error="Manim rendering failed. The script may have syntax errors.",
+                error="Manim rendering failed. Check the details below.",
+                render_stderr=render_stderr,
             )
 
     except Exception as exc:

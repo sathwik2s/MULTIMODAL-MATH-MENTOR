@@ -22,22 +22,33 @@ def render_visualization_panel() -> None:
     st.divider()
     st.subheader("🎬 Animated Explanation")
 
-    if viz.success and viz.video_path and Path(viz.video_path).exists():
-        st.video(viz.video_path)
-        st.caption(f"Rendered from: {Path(viz.script_path).name}")
-    elif viz.success and viz.video_path:
-        st.warning("Video was rendered but the file is not accessible.", icon="⚠️")
+    if viz.success and viz.video_path:
+        video_file = Path(viz.video_path)
+        if video_file.exists():
+            # Read as bytes — most reliable way to serve local files in Streamlit
+            st.video(video_file.read_bytes())
+            st.caption(f"Rendered from: {video_file.name}")
+        else:
+            st.warning(
+                f"Video was rendered but cannot be found at `{viz.video_path}`. "
+                "Try solving again.",
+                icon="⚠️",
+            )
     else:
-        st.info(
-            "Animation could not be generated for this problem. "
-            "This is normal for some problem types.",
-            icon="ℹ️",
+        st.error(
+            "**Animation rendering failed.**  \n"
+            "Make sure **Manim CE** and **ffmpeg** are installed, then click "
+            "**🚀 Solve Problem** again to regenerate.",
+            icon="🎬",
         )
-        if viz.error:
-            with st.expander("Details"):
-                st.code(viz.error, language="text")
+        # Show the Manim error output so the user / developer can diagnose
+        error_text = "\n\n".join(filter(None, [viz.error, viz.render_stderr]))
+        if error_text:
+            with st.expander("🔍 Manim Error Details", expanded=True):
+                st.code(error_text, language="text")
 
-    # Show the Manim script source
+    # Always show the generated script so users can tweak / inspect it
     if viz.script_content:
         with st.expander("📜 View Manim Script", expanded=False):
             st.code(viz.script_content, language="python")
+
