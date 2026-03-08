@@ -58,9 +58,6 @@ services:
         value: "true"
       - key: STREAMLIT_SERVER_FILE_WATCHER_TYPE
         value: none
-      # Render injects PORT=10000; override here so CMD uses it not the HF default 7860
-      - key: PORT
-        value: "10000"
 
       # ── OCR Engine (cloud mode — avoids downloading heavy local models) ──
       # llm_vision uses the LLM API key already set above (no extra cost)
