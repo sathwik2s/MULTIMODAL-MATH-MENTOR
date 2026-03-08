@@ -51,14 +51,15 @@ USER appuser
 # Ingest knowledge base at build time
 RUN python -m backend.rag.ingest || true
 
-EXPOSE 8501
+EXPOSE 7860
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
-    CMD curl --fail http://localhost:${PORT:-8501}/_stcore/health || exit 1
+    CMD curl --fail http://localhost:${PORT:-7860}/_stcore/health || exit 1
 
-# Use shell form so $PORT is expanded at runtime (Render sets PORT=10000)
+# PORT=7860 is required by Hugging Face Spaces.
+# Render overrides this with PORT=10000 via its environment.
 CMD streamlit run frontend/app.py \
-    --server.port=${PORT:-8501} \
+    --server.port=${PORT:-7860} \
     --server.address=0.0.0.0 \
     --server.headless=true \
     --server.fileWatcherType=none \
