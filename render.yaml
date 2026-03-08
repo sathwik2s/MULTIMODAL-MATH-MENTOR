@@ -59,6 +59,19 @@ services:
       - key: STREAMLIT_SERVER_FILE_WATCHER_TYPE
         value: none
 
+      # ── OCR Engine (cloud mode — avoids downloading heavy local models) ──
+      # llm_vision uses the LLM API key already set above (no extra cost)
+      - key: OCR_ENGINE
+        value: llm_vision
+
+      # ── ASR Engine (cloud Whisper — Groq API, no model download needed) ──
+      - key: ASR_ENGINE
+        value: groq
+
+      # ── OpenTelemetry (prevents Python 3.13 hang with chromadb) ──────────
+      - key: OTEL_SDK_DISABLED
+        value: "true"
+
   # ── 2. FastAPI REST Backend (Optional — API-only service) ────────────────
   - type: web
     name: math-mentor-api

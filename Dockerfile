@@ -4,7 +4,12 @@ FROM python:3.11-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    # Force cloud-based OCR and ASR — avoids downloading heavy local ML models
+    # (pix2tex ~600 MB, EasyOCR ~500 MB, Whisper ~600 MB) on Render's 512 MB RAM tier
+    OCR_ENGINE=llm_vision \
+    ASR_ENGINE=groq \
+    OTEL_SDK_DISABLED=true
 
 WORKDIR /app
 
@@ -25,10 +30,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+COPY requirements-render.txt ./requirements-render.txt
 COPY requirements.txt .
-# Upgrade pip + wheel first, then install with --prefer-binary to avoid source compilation
+# Use slim render requirements (excludes pix2tex, easyocr, openai-whisper)
+# to keep image under Render's memory limits
 RUN pip install --upgrade pip wheel setuptools \
-    && pip install --no-cache-dir --prefer-binary -r requirements.txt
+    && pip install --no-cache-dir --prefer-binary -r requirements-render.txt
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser
@@ -55,4 +62,5 @@ CMD streamlit run frontend/app.py \
     --server.address=0.0.0.0 \
     --server.headless=true \
     --server.fileWatcherType=none \
-    --server.maxUploadSize=50
+    --server.maxUploadSize=200 \
+    --server.enableXsrfProtection=false

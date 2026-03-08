@@ -1,0 +1,49 @@
+# ──────────────────────────────────────────────────────────────────
+# Render / production requirements
+# Heavy local ML models (pix2tex, easyocr, openai-whisper) are
+# intentionally excluded — the deployed app uses cloud APIs via:
+#   OCR_ENGINE=llm_vision  (LLM provider vision API)
+#   ASR_ENGINE=groq        (Groq Whisper API, whisper-large-v3)
+# ──────────────────────────────────────────────────────────────────
+
+# Core
+streamlit>=1.32.0
+python-dotenv>=1.0.0
+
+# REST API backend (FastAPI)
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+
+# LLM providers
+openai>=1.30.0
+anthropic>=0.25.0
+groq>=0.5.0
+google-genai>=1.0.0
+
+# LangChain ecosystem
+langchain>=0.2.0
+langchain-openai>=0.1.0
+langchain-community>=0.2.0
+langchain-text-splitters>=0.2.0
+
+# Vector database
+chromadb>=0.5.0
+
+# Embeddings (lightweight sentence-transformers, no GPU needed)
+sentence-transformers>=2.7.0
+
+# Math
+sympy>=1.12
+
+# Visualization (Manim)
+manim>=0.18.0
+imageio-ffmpeg>=0.5.0
+
+# Utilities
+Pillow>=10.0.0
+numpy>=1.26.0
+pydantic>=2.5.0
+soundfile>=0.12.0
+
+# NOTE: pix2tex, easyocr, openai-whisper are NOT installed here.
+# They are only used in local development (see requirements.txt).

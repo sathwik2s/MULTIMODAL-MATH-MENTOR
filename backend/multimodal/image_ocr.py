@@ -26,6 +26,7 @@ logger = get_logger(__name__)
 
 # ── Lazy singletons ───────────────────────────────────────────────────────────
 _easy_reader = None
+_pix2tex_model = None
 
 
 def _get_easyocr():
@@ -38,7 +39,26 @@ def _get_easyocr():
     return _easy_reader
 
 
+def _get_pix2tex():
+    """Lazy-initialise the pix2tex LatexOCR model."""
+    global _pix2tex_model
+    if _pix2tex_model is None:
+        from pix2tex.cli import LatexOCR
+        logger.info("Loading pix2tex LatexOCR model …")
+        _pix2tex_model = LatexOCR()
+    return _pix2tex_model
+
+
 # ── Engine detection ──────────────────────────────────────────────────────────
+
+def _pix2tex_available() -> bool:
+    """Return True when pix2tex is installed."""
+    try:
+        import pix2tex  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
 
 def _mathpix_available() -> bool:
     """Return True when real Mathpix credentials are present in the environment."""
@@ -198,7 +218,7 @@ def _llm_vision_ocr(pil_img: Image.Image) -> tuple[str, float]:
 
 
 def _detect_ocr_engine() -> str:
-    """Return the engine to use: 'mathpix' | 'llm_vision' | 'easyocr'."""
+    """Return the engine to use: 'mathpix' | 'pix2tex' | 'llm_vision' | 'easyocr'."""
     pref = os.environ.get("OCR_ENGINE", "auto").lower()
     if pref == "mathpix":
         return "mathpix"
@@ -206,9 +226,14 @@ def _detect_ocr_engine() -> str:
         return "easyocr"
     if pref == "llm_vision":
         return "llm_vision"
-    # Auto priority: Mathpix (best) → LLM Vision (great, free) → EasyOCR (basic)
+    if pref == "pix2tex":
+        return "pix2tex"
+    # Auto priority: Mathpix (cloud, best) → pix2tex (local neural math OCR)
+    #                → LLM Vision (cloud w/ API key) → EasyOCR (basic offline)
     if _mathpix_available():
         return "mathpix"
+    if _pix2tex_available():
+        return "pix2tex"
     if _llm_vision_available():
         return "llm_vision"
     try:
@@ -219,8 +244,9 @@ def _detect_ocr_engine() -> str:
     raise ImportError(
         "No OCR engine available.\n"
         "Option A — Mathpix (best for math): add MATHPIX_APP_ID and MATHPIX_APP_KEY to .env\n"
-        "Option B — LLM Vision OCR (excellent, free): set an LLM API key (OpenAI/Gemini/Groq/Anthropic)\n"
-        "Option C — EasyOCR (offline, basic): pip install easyocr"
+        "Option B — pix2tex (best local math OCR): pip install pix2tex[cli]\n"
+        "Option C — LLM Vision OCR (excellent, free): set an LLM API key (OpenAI/Gemini/Groq/Anthropic)\n"
+        "Option D — EasyOCR (offline, basic): pip install easyocr"
     )
 
 
@@ -433,6 +459,16 @@ def extract_text_from_image(
         except RuntimeError as exc:
             logger.error("Mathpix OCR failed: %s", exc)
             return ConfidenceResult(value="", score=0.0, reason=f"Mathpix error: {exc}")
+    elif engine == "pix2tex":
+        try:
+            model = _get_pix2tex()
+            raw_text = model(pil_img)
+            raw_text = raw_text.strip() if raw_text else ""
+            avg_confidence = 0.92 if len(raw_text) > 5 else 0.3
+            logger.debug("pix2tex OCR output:\n%s", raw_text)
+        except Exception as exc:
+            logger.error("pix2tex OCR failed: %s", exc)
+            return ConfidenceResult(value="", score=0.0, reason=f"pix2tex OCR error: {exc}")
     elif engine == "llm_vision":
         try:
             raw_text, avg_confidence = _llm_vision_ocr(pil_img)
@@ -473,8 +509,8 @@ def extract_text_from_image(
     logger.debug("Raw OCR text:\n%s", raw_text)
 
     # ── LLM post-correction (EasyOCR only) ────────────────────────────────────
-    # Mathpix and LLM Vision already produce clean LaTeX — no post-correction needed.
-    if engine in ("mathpix", "llm_vision"):
+    # Mathpix, pix2tex, and LLM Vision already produce clean LaTeX — no post-correction needed.
+    if engine in ("mathpix", "pix2tex", "llm_vision"):
         corrected_text = raw_text
     else:
         corrected_text = _llm_fix_ocr(raw_text)

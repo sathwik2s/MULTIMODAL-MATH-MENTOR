@@ -45,13 +45,15 @@ def render_input_panel() -> None:
 
             # Show which OCR engine will be used
             import os as _os
-            from backend.multimodal.image_ocr import _mathpix_available, _llm_vision_available
+            from backend.multimodal.image_ocr import _mathpix_available, _llm_vision_available, _pix2tex_available
             if _mathpix_available():
                 ocr_label = "Extract Text (Mathpix OCR)"
+            elif _pix2tex_available():
+                ocr_label = "Extract Text (pix2tex — LaTeX OCR)"
             elif _llm_vision_available():
                 ocr_label = f"Extract Text (LLM Vision OCR — {_os.environ.get('LLM_PROVIDER', 'openai')})"
             else:
-                ocr_label = "Extract Text (EasyOCR — add API key for better results)"
+                ocr_label = "Extract Text (EasyOCR — install pix2tex for better results)"
 
             st.markdown('<div class="btn-warning">', unsafe_allow_html=True)
             if st.button(ocr_label, key="btn_ocr", use_container_width=True):
@@ -92,9 +94,27 @@ def render_input_panel() -> None:
         )
         if uploaded_audio:
             st.audio(uploaded_audio)
+
+            # Show which ASR engine will be used
+            import os as _os
+            from backend.multimodal.audio_asr import _groq_whisper_available, _openai_whisper_available, _local_whisper_available
+            _asr_pref = _os.environ.get("ASR_ENGINE", "auto").lower()
+            if _asr_pref == "groq" or (_asr_pref == "auto" and _groq_whisper_available()):
+                asr_label = "Transcribe Audio (Groq Whisper)"
+                asr_spinner = "Transcribing via Groq Whisper API…"
+            elif _asr_pref == "openai" or (_asr_pref == "auto" and _openai_whisper_available()):
+                asr_label = "Transcribe Audio (OpenAI Whisper)"
+                asr_spinner = "Transcribing via OpenAI Whisper API…"
+            elif _local_whisper_available():
+                asr_label = "Transcribe Audio (local Whisper — add API key for faster results)"
+                asr_spinner = "Transcribing with local Whisper model… (first run downloads model)"
+            else:
+                asr_label = "Transcribe Audio (no ASR engine — set GROQ_API_KEY)"
+                asr_spinner = "Attempting transcription…"
+
             st.markdown('<div class="btn-info">', unsafe_allow_html=True)
-            if st.button("Transcribe Audio", key="btn_asr", use_container_width=True):
-                with st.spinner("Transcribing…"):
+            if st.button(asr_label, key="btn_asr", use_container_width=True):
+                with st.spinner(asr_spinner):
                     asr_result = transcribe_audio(uploaded_audio.read())
                     st.session_state.extracted_text = asr_result.value
                     st.session_state.input_confidence = asr_result.score

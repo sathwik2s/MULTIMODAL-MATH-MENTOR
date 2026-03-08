@@ -22,10 +22,11 @@ langchain-openai>=0.1.0
 langchain-community>=0.2.0
 langchain-text-splitters>=0.2.0
 
-# OCR — Mathpix (primary, cloud API) + EasyOCR (offline fallback)
+# OCR — Mathpix (primary, cloud API) + pix2tex (best local math OCR) + EasyOCR (offline fallback)
 # Mathpix is accessed via built-in urllib — no extra package required.
 # Install requests only if you prefer it:
 # requests>=2.31.0
+pix2tex[cli]>=0.1.2
 easyocr>=1.7.0
 
 # Speech-to-text
