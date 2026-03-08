@@ -43,8 +43,18 @@ def render_input_panel() -> None:
             image = Image.open(uploaded_image)
             st.image(image, caption="Uploaded image", use_container_width=True)
 
+            # Show which OCR engine will be used
+            import os as _os
+            from backend.multimodal.image_ocr import _mathpix_available, _llm_vision_available
+            if _mathpix_available():
+                ocr_label = "Extract Text (Mathpix OCR)"
+            elif _llm_vision_available():
+                ocr_label = f"Extract Text (LLM Vision OCR — {_os.environ.get('LLM_PROVIDER', 'openai')})"
+            else:
+                ocr_label = "Extract Text (EasyOCR — add API key for better results)"
+
             st.markdown('<div class="btn-warning">', unsafe_allow_html=True)
-            if st.button("Extract Text (Mathpix OCR)", key="btn_ocr", use_container_width=True):
+            if st.button(ocr_label, key="btn_ocr", use_container_width=True):
                 with st.spinner("Running Mathpix OCR…"):
                     ocr_result = extract_text_from_image(image)
 

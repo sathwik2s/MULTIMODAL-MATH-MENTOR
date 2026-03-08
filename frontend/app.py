@@ -74,7 +74,12 @@ import os as _os
 def _api_key_ok() -> bool:
     provider = _os.environ.get("LLM_PROVIDER", "openai")
     key = _os.environ.get(
-        {"openai": "OPENAI_API_KEY", "groq": "GROQ_API_KEY", "anthropic": "ANTHROPIC_API_KEY"}.get(provider, "OPENAI_API_KEY"), ""
+        {
+            "openai": "OPENAI_API_KEY",
+            "groq": "GROQ_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY",
+            "gemini": "GEMINI_API_KEY",
+        }.get(provider, "OPENAI_API_KEY"), ""
     )
     return bool(key) and not key.strip().endswith("...")
 
@@ -118,10 +123,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 if not _api_key_ok():
-    st.warning(
-        "**API key not configured.** "
-        "Open the sidebar → 🔑 API Configuration and enter your real API key to enable solving.",
-        icon="⚠️",
+    provider = _os.environ.get("LLM_PROVIDER", "openai")
+    key_name = {
+        "openai": "OPENAI_API_KEY (sk-...)",
+        "groq": "GROQ_API_KEY (gsk_...)",
+        "anthropic": "ANTHROPIC_API_KEY (sk-ant-...)",
+        "gemini": "GEMINI_API_KEY (AIza...)",
+    }.get(provider, "OPENAI_API_KEY")
+    st.error(
+        f"""**🔑 API key required — app will not solve problems without one.**
+
+"""
+        f"**Step 1:** In the **sidebar on the left**, find **🔑 API Configuration**  \n"
+        f"**Step 2:** Choose your provider (currently: `{provider}`)  \n"
+        f"**Step 3:** Paste your real `{key_name}` into the password field and press Enter  \n\n"
+        "The key is active for this session immediately — no restart needed.  \n"
+        "*For permanent setup on Render: add the key in **Render dashboard → Environment** tab.*"
     )
 
 render_input_panel()
