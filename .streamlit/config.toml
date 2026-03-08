@@ -7,4 +7,8 @@ textColor          = "#e2e8f0"
 [server]
 headless           = true
 fileWatcherType    = "none"
-maxUploadSize      = 50
+maxUploadSize      = 200
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats   = false

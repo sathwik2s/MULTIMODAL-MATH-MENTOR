@@ -1,3 +1,15 @@
+---
+title: Multimodal Math Mentor
+emoji: 🧮
+colorFrom: purple
+colorTo: blue
+sdk: streamlit
+sdk_version: "1.32.0"
+app_file: streamlit_app.py
+pinned: true
+license: mit
+---
+
 # 🧮 Multimodal Math Mentor
 
 An AI-powered tutoring system that solves JEE-style math problems using multimodal inputs, multi-agent architecture, RAG, human-in-the-loop verification, and persistent memory.
