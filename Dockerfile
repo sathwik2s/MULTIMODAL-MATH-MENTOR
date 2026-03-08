@@ -9,6 +9,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     # (pix2tex ~600 MB, EasyOCR ~500 MB, Whisper ~600 MB) on Render's 512 MB RAM tier
     OCR_ENGINE=llm_vision \
     ASR_ENGINE=groq \
+    IMAGEIO_FFMPEG_EXE=/usr/bin/ffmpeg \
+    FFMPEG_BINARY=/usr/bin/ffmpeg \
     OTEL_SDK_DISABLED=true
 
 WORKDIR /app

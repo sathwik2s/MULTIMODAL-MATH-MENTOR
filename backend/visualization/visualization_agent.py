@@ -24,21 +24,28 @@ from backend.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# ── Ensure ffmpeg is on PATH (use imageio-ffmpeg bundled binary if needed) ───
-try:
-    import imageio_ffmpeg  # type: ignore
-    _ffmpeg_exe = Path(imageio_ffmpeg.get_ffmpeg_exe())
-    _ffmpeg_dir = str(_ffmpeg_exe.parent)
-    # imageio-ffmpeg names the binary with a version suffix; Manim expects 'ffmpeg.exe'
-    _ffmpeg_alias = _ffmpeg_exe.parent / ("ffmpeg" + _ffmpeg_exe.suffix)
-    if not _ffmpeg_alias.exists():
-        import shutil
-        shutil.copy2(str(_ffmpeg_exe), str(_ffmpeg_alias))
-    if _ffmpeg_dir not in os.environ.get("PATH", ""):
-        os.environ["PATH"] = _ffmpeg_dir + os.pathsep + os.environ.get("PATH", "")
-        logger.info("Added imageio-ffmpeg to PATH: %s", _ffmpeg_dir)
-except ImportError:
-    pass  # Hope ffmpeg is already on system PATH
+# ── Ensure ffmpeg is executable (prefer system ffmpeg on hosted platforms) ───
+_system_ffmpeg = Path("/usr/bin/ffmpeg")
+if _system_ffmpeg.exists():
+    ffmpeg_path = str(_system_ffmpeg)
+    # Force imageio/manim to use system ffmpeg instead of bundled site-packages binary.
+    os.environ.setdefault("IMAGEIO_FFMPEG_EXE", ffmpeg_path)
+    os.environ.setdefault("FFMPEG_BINARY", ffmpeg_path)
+    if "/usr/bin" not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = "/usr/bin" + os.pathsep + os.environ.get("PATH", "")
+    logger.info("Using system ffmpeg: %s", ffmpeg_path)
+else:
+    try:
+        import imageio_ffmpeg  # type: ignore
+        _ffmpeg_exe = Path(imageio_ffmpeg.get_ffmpeg_exe())
+        # Do not copy/modify binaries under site-packages (read-only on many hosts).
+        os.environ.setdefault("IMAGEIO_FFMPEG_EXE", str(_ffmpeg_exe))
+        _ffmpeg_dir = str(_ffmpeg_exe.parent)
+        if _ffmpeg_dir not in os.environ.get("PATH", ""):
+            os.environ["PATH"] = _ffmpeg_dir + os.pathsep + os.environ.get("PATH", "")
+        logger.info("Using imageio ffmpeg binary: %s", _ffmpeg_exe)
+    except ImportError:
+        pass  # Hope ffmpeg is already on system PATH
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 VIDEOS_DIR = _PROJECT_ROOT / "outputs" / "videos"
