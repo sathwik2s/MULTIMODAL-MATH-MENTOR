@@ -93,10 +93,16 @@ def _llm_vision_available() -> bool:
 # Vision models used specifically for OCR (may differ from the chat model)
 _VISION_MODELS = {
     "openai":    os.getenv("OPENAI_VISION_MODEL",    "gpt-4o"),
-    "groq":      os.getenv("GROQ_VISION_MODEL",      "llama-3.2-90b-vision-preview"),
+    "groq":      os.getenv("GROQ_VISION_MODEL",      "meta-llama/llama-4-maverick-17b-128e-instruct"),
     "anthropic": os.getenv("ANTHROPIC_VISION_MODEL", "claude-3-5-haiku-20241022"),
     "gemini":    os.getenv("GEMINI_VISION_MODEL",    "gemini-1.5-flash"),
 }
+
+# Fallback models to try if the primary vision model is unavailable (Groq only)
+_GROQ_VISION_FALLBACKS = [
+    "meta-llama/llama-4-scout-17b-16e-instruct",
+    "meta-llama/llama-4-maverick-17b-128e-instruct",
+]
 
 _VISION_OCR_PROMPT = """\
 You are a math OCR specialist. Your job is to faithfully extract text from an image of a math problem.
@@ -171,19 +177,34 @@ def _llm_vision_ocr(pil_img: Image.Image) -> tuple[str, float]:
     elif provider == "groq":
         from groq import Groq
         client = Groq(api_key=os.environ.get("GROQ_API_KEY", ""))
-        resp = client.chat.completions.create(
-            model=model,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64}"}},
-                    {"type": "text", "text": _VISION_OCR_PROMPT},
-                ],
-            }],
-            max_tokens=1024,
-            temperature=0,
-        )
-        text = resp.choices[0].message.content or ""
+        # Build ordered list: configured model first, then fallbacks (deduped)
+        models_to_try = [model] + [m for m in _GROQ_VISION_FALLBACKS if m != model]
+        last_exc: Exception | None = None
+        for groq_model in models_to_try:
+            try:
+                resp = client.chat.completions.create(
+                    model=groq_model,
+                    messages=[{
+                        "role": "user",
+                        "content": [
+                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64}"}},
+                            {"type": "text", "text": _VISION_OCR_PROMPT},
+                        ],
+                    }],
+                    max_tokens=1024,
+                    temperature=0,
+                )
+                text = resp.choices[0].message.content or ""
+                if groq_model != model:
+                    logger.info("Primary Groq model unavailable; used fallback: %s", groq_model)
+                break
+            except Exception as exc:
+                logger.warning("Groq vision model %s failed: %s", groq_model, exc)
+                last_exc = exc
+                text = ""
+        else:
+            # All models failed
+            raise RuntimeError(f"All Groq vision models failed. Last error: {last_exc}") from last_exc
 
     elif provider == "anthropic":
         from anthropic import Anthropic

@@ -30,7 +30,7 @@ GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
 # ── Vision OCR models (used by image_ocr.py, independent of the chat model) ──
 OPENAI_VISION_MODEL: str = os.getenv("OPENAI_VISION_MODEL", "gpt-4o")
-GROQ_VISION_MODEL: str = os.getenv("GROQ_VISION_MODEL", "llama-3.2-11b-vision-preview")
+GROQ_VISION_MODEL: str = os.getenv("GROQ_VISION_MODEL", "meta-llama/llama-4-maverick-17b-128e-instruct")
 ANTHROPIC_VISION_MODEL: str = os.getenv("ANTHROPIC_VISION_MODEL", "claude-3-haiku-20240307")
 GEMINI_VISION_MODEL: str = os.getenv("GEMINI_VISION_MODEL", "gemini-1.5-flash")
 

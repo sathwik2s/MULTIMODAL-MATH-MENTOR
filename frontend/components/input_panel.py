@@ -65,7 +65,16 @@ def render_input_panel() -> None:
                 st.session_state.input_type = "image"
 
                 if not str(ocr_result.value).strip():
-                    st.error("No text detected in the image. Try a clearer or higher-resolution photo.")
+                    reason = ocr_result.reason or ""
+                    if "error" in reason.lower() or "failed" in reason.lower():
+                        st.error(f"OCR failed: {reason}")
+                        st.info(
+                            "💡 This may be a temporary API issue. "
+                            "Try again, or set a different LLM_PROVIDER in the sidebar.",
+                            icon="ℹ️",
+                        )
+                    else:
+                        st.error("No text detected in the image. Try a clearer or higher-resolution photo.")
                 else:
                     conf_pct = f"{ocr_result.score:.0%}"
                     if ocr_result.reason == "ocr_low_confidence":
