@@ -31,6 +31,20 @@ def render_result_panel() -> None:
     st.divider()
     st.subheader("3️⃣ Solution")
 
+    # ── SOLVER ERROR — show prominently if the pipeline failed ───────────
+    if pr.solver_result and pr.solver_result.error:
+        err = pr.solver_result.error
+        if "api key" in err.lower() or "not configured" in err.lower() or "is not configured" in err.lower():
+            st.error(
+                f"**🔑 API key error:** {err}\n\n"
+                "**Fix:** Open the **sidebar → 🔑 API Configuration**, select your provider, "
+                "paste your real API key, and click **Solve Problem** again.",
+                icon="🔑",
+            )
+        else:
+            st.error(f"**Pipeline error:** {err}", icon="❌")
+        return
+
     # ── FINAL ANSWER — always show prominently first ──────────────────────
     final_answer = ""
     if pr.explanation and pr.explanation.final_answer:

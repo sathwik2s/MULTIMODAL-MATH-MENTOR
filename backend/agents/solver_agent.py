@@ -200,7 +200,11 @@ def solve(parsed: ParsedProblem, routing: RoutingDecision) -> SolverResult:
     )
 
     try:
-        llm = get_llm_client()
+        try:
+            llm = get_llm_client()
+        except ValueError:
+            # API key not configured — re-raise so UI surfaces a clear error message
+            raise
         response = llm(
             system_prompt=SOLVER_SYSTEM_PROMPT,
             user_prompt=user_payload,

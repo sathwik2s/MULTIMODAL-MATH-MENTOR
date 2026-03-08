@@ -72,5 +72,17 @@ def render_preview_panel() -> None:
                     input_confidence=st.session_state.input_confidence,
                 )
                 st.session_state.pipeline_result = pipeline_result
+            except ValueError as exc:
+                # API key or configuration error — show clear guidance
+                st.error(
+                    f"**🔑 Configuration error:** {exc}\n\n"
+                    "Open the **sidebar → 🔑 API Configuration**, choose your provider, "
+                    "and paste your real API key.",
+                    icon="🔑",
+                )
             except Exception as exc:
-                st.error(f"Pipeline error: {exc}", icon="❌")
+                st.error(
+                    f"**Pipeline error:** {exc}\n\n"
+                    "If this is an API authentication error, check your key in the sidebar.",
+                    icon="❌",
+                )
