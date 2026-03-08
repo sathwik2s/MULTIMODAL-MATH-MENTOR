@@ -48,12 +48,12 @@ def render_input_panel() -> None:
             from backend.multimodal.image_ocr import _mathpix_available, _llm_vision_available, _pix2tex_available
             if _mathpix_available():
                 ocr_label = "Extract Text (Mathpix OCR)"
-            elif _pix2tex_available():
-                ocr_label = "Extract Text (pix2tex — LaTeX OCR)"
             elif _llm_vision_available():
                 ocr_label = f"Extract Text (LLM Vision OCR — {_os.environ.get('LLM_PROVIDER', 'openai')})"
+            elif _pix2tex_available():
+                ocr_label = "Extract Text (pix2tex — equation-only OCR)"
             else:
-                ocr_label = "Extract Text (EasyOCR — install pix2tex for better results)"
+                ocr_label = "Extract Text (EasyOCR — set an API key for better results)"
 
             st.markdown('<div class="btn-warning">', unsafe_allow_html=True)
             if st.button(ocr_label, key="btn_ocr", use_container_width=True):

@@ -93,25 +93,39 @@ def _llm_vision_available() -> bool:
 # Vision models used specifically for OCR (may differ from the chat model)
 _VISION_MODELS = {
     "openai":    os.getenv("OPENAI_VISION_MODEL",    "gpt-4o"),
-    "groq":      os.getenv("GROQ_VISION_MODEL",      "llama-3.2-11b-vision-preview"),
-    "anthropic": os.getenv("ANTHROPIC_VISION_MODEL", "claude-3-haiku-20240307"),
+    "groq":      os.getenv("GROQ_VISION_MODEL",      "llama-3.2-90b-vision-preview"),
+    "anthropic": os.getenv("ANTHROPIC_VISION_MODEL", "claude-3-5-haiku-20241022"),
     "gemini":    os.getenv("GEMINI_VISION_MODEL",    "gemini-1.5-flash"),
 }
 
 _VISION_OCR_PROMPT = """\
-You are a math OCR specialist. Extract the complete math problem from this image.
+You are a math OCR specialist. Your job is to faithfully extract text from an image of a math problem.
 
-Rules:
-1. Output the full problem text exactly as it appears in the image.
-2. Use standard math notation:
-   - Powers: x^2, x^n
-   - Fractions: \\frac{a}{b} or (a)/(b)
-   - Square roots: \\sqrt{x}
-   - Integrals: \\int_{a}^{b}
-   - Greek letters: \\alpha, \\beta, \\theta, \\pi, \\sigma
-3. Include ALL given conditions, variables, constraints, and multiple-choice options.
-4. If there are multiple parts (a, b, c ...) include all of them.
-5. Output ONLY the extracted problem text — no explanations, no JSON, no commentary.
+The image may contain:
+- Typed or printed text (problem statements, instructions)
+- Handwritten text or annotations
+- Mathematical expressions, equations, or formulas
+- Multiple-choice options (A/B/C/D or checkbox lists)
+- Diagrams or figures (describe briefly if present)
+
+Strict rules:
+1. Read and output ALL the text visible in the image, top to bottom, left to right.
+2. For simple arithmetic or word expressions, use plain text (e.g. "x^2 + 3x - 5 = 0").
+3. Only use LaTeX for clearly typeset formulas — never hallucinate LaTeX for plain text.
+4. For fractions write: (numerator)/(denominator)  or  \\frac{num}{denom}.
+5. For powers write: base^exponent.
+6. For multiple-choice questions, list every option on its own line prefixed by the label.
+7. Percentages, decimals, and words MUST be transcribed as-is (e.g. "10% - 30%").
+8. Do NOT invent, add, or rearrange content.
+9. If there are squiggles, doodles, or decorative drawings that are not part of the question, ignore them.
+10. Output ONLY the extracted problem text — no commentary, no JSON, no LaTeX preamble.
+
+Example output for a multiple-choice probability question:
+Question 1: If you guess all 20 questions on this exam, what is the probability that you will pass?
+(a) 10% - 30%
+(b) 5% - 10%
+(c) 1% - 5%
+(d) None of the above
 """
 
 
@@ -217,8 +231,45 @@ def _llm_vision_ocr(pil_img: Image.Image) -> tuple[str, float]:
     return text, confidence
 
 
+def _pix2tex_output_is_valid(text: str) -> bool:
+    """Return False when pix2tex has produced garbled/garbage LaTeX.
+
+    pix2tex is trained on isolated math equations.  When given a full-page
+    image with text, MCQ options, or hand-drawn doodles it outputs sequences
+    of nonsense LaTeX commands.  We detect this by checking the ratio of
+    readable ASCII words vs LaTeX command tokens.
+    """
+    if not text or len(text) < 3:
+        return False
+    import re
+    # Count LaTeX command tokens (e.g. \\frac, \\sqrt, \\phi …)
+    latex_cmds = len(re.findall(r'\\[a-zA-Z]+', text))
+    # Count "word" tokens that look like real English or numeric content
+    words = len(re.findall(r'\b[a-zA-Z0-9]{2,}\b', text))
+    total = latex_cmds + words
+    if total == 0:
+        return False
+    latex_ratio = latex_cmds / total
+    # If more than 60% of all tokens are LaTeX commands on a short string it's
+    # likely garbage from a text-heavy image
+    if latex_ratio > 0.60 and len(text) < 300:
+        logger.warning(
+            "pix2tex output looks garbled (%.0f%% LaTeX tokens) — will fall back",
+            latex_ratio * 100,
+        )
+        return False
+    return True
+
+
 def _detect_ocr_engine() -> str:
-    """Return the engine to use: 'mathpix' | 'pix2tex' | 'llm_vision' | 'easyocr'."""
+    """Return the engine to use: 'mathpix' | 'llm_vision' | 'easyocr' | 'pix2tex'.
+
+    Auto-priority:
+      1. Mathpix  — cloud, best-in-class for printed math
+      2. LLM Vision — cloud, excellent for mixed text/MCQ/handwriting
+      3. EasyOCR  — local offline general OCR + LLM post-correction
+      4. pix2tex  — local, but ONLY reliable on isolated equation crops
+    """
     pref = os.environ.get("OCR_ENGINE", "auto").lower()
     if pref == "mathpix":
         return "mathpix"
@@ -228,12 +279,9 @@ def _detect_ocr_engine() -> str:
         return "llm_vision"
     if pref == "pix2tex":
         return "pix2tex"
-    # Auto priority: Mathpix (cloud, best) → pix2tex (local neural math OCR)
-    #                → LLM Vision (cloud w/ API key) → EasyOCR (basic offline)
+    # Auto: Mathpix → LLM Vision → EasyOCR → pix2tex (last resort)
     if _mathpix_available():
         return "mathpix"
-    if _pix2tex_available():
-        return "pix2tex"
     if _llm_vision_available():
         return "llm_vision"
     try:
@@ -241,12 +289,14 @@ def _detect_ocr_engine() -> str:
         return "easyocr"
     except ImportError:
         pass
+    if _pix2tex_available():
+        return "pix2tex"
     raise ImportError(
         "No OCR engine available.\n"
-        "Option A — Mathpix (best for math): add MATHPIX_APP_ID and MATHPIX_APP_KEY to .env\n"
-        "Option B — pix2tex (best local math OCR): pip install pix2tex[cli]\n"
-        "Option C — LLM Vision OCR (excellent, free): set an LLM API key (OpenAI/Gemini/Groq/Anthropic)\n"
-        "Option D — EasyOCR (offline, basic): pip install easyocr"
+        "Option A — LLM Vision (best overall): set GROQ_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY\n"
+        "Option B — Mathpix (best for printed math): add MATHPIX_APP_ID and MATHPIX_APP_KEY\n"
+        "Option C — EasyOCR (offline, basic): pip install easyocr\n"
+        "Option D — pix2tex (isolated equations only): pip install pix2tex[cli]"
     )
 
 
@@ -464,8 +514,30 @@ def extract_text_from_image(
             model = _get_pix2tex()
             raw_text = model(pil_img)
             raw_text = raw_text.strip() if raw_text else ""
-            avg_confidence = 0.92 if len(raw_text) > 5 else 0.3
             logger.debug("pix2tex OCR output:\n%s", raw_text)
+
+            # pix2tex produces garbage on text-heavy / MCQ images.
+            # If the output looks invalid, fall back to LLM Vision or EasyOCR.
+            if not _pix2tex_output_is_valid(raw_text):
+                logger.warning("pix2tex output invalid — falling back to LLM Vision / EasyOCR")
+                if _llm_vision_available():
+                    raw_text, avg_confidence = _llm_vision_ocr(pil_img)
+                    engine = "llm_vision"   # so post-correction is skipped below
+                else:
+                    # EasyOCR fallback
+                    try:
+                        reader = _get_easyocr()
+                        results = reader.readtext(processed, detail=1, paragraph=False)
+                        results_sorted = sorted(results, key=lambda r: (r[0][0][1], r[0][0][0]))
+                        raw_text = "\n".join(t.strip() for _, t, _ in results_sorted if t.strip())
+                        confs = [float(c) for _, _, c in results_sorted]
+                        avg_confidence = sum(confs) / len(confs) if confs else 0.0
+                        engine = "easyocr"
+                    except Exception as fb_exc:
+                        logger.error("EasyOCR fallback failed: %s", fb_exc)
+                        raw_text = ""
+            else:
+                avg_confidence = 0.92 if len(raw_text) > 5 else 0.3
         except Exception as exc:
             logger.error("pix2tex OCR failed: %s", exc)
             return ConfidenceResult(value="", score=0.0, reason=f"pix2tex OCR error: {exc}")
