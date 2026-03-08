@@ -56,8 +56,7 @@ EXPOSE 7860
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
     CMD curl --fail http://localhost:${PORT:-7860}/_stcore/health || exit 1
 
-# PORT=7860 is required by Hugging Face Spaces.
-# Render overrides this with PORT=10000 via its environment.
+# HF Spaces requires port 7860. Render overrides PORT=10000 from its env.
 CMD streamlit run frontend/app.py \
     --server.port=${PORT:-7860} \
     --server.address=0.0.0.0 \
