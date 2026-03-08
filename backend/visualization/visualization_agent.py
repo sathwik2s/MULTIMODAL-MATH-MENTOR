@@ -294,13 +294,50 @@ def _ensure_ffmpeg_in_env(env: dict) -> None:
             return
 
 
+def _find_manim_python() -> str:
+    """Return a Python executable path that has `manim` importable.
+
+    Tries sys.executable first (venv), then common system Python locations on
+    Windows so rendering still works even if manim is installed globally.
+    """
+    import subprocess
+    import sys
+
+    candidates = [sys.executable]
+
+    # System Python 3.x installs on Windows that may have manim globally
+    for drive in [r"C:", r"D:"]:
+        for ver in ["313", "312", "311", "310", "39"]:
+            candidates.append(rf"{drive}\Python{ver}\python.exe")
+    # User-installed via Microsoft Store / AppData
+    candidates.append(
+        str(Path.home() / "AppData" / "Local" / "Programs" / "Python" / "Python313" / "python.exe")
+    )
+
+    for py in candidates:
+        if not Path(py).exists():
+            continue
+        try:
+            result = subprocess.run(
+                [py, "-c", "import manim"],
+                capture_output=True, timeout=10
+            )
+            if result.returncode == 0:
+                logger.info("Manim found with Python: %s", py)
+                return py
+        except Exception:
+            continue
+
+    # Last resort — hope 'python' on PATH has it
+    return sys.executable
+
+
 def _render_video(script_content: str, script_path: Path) -> tuple[Optional[str], str]:
     """Save the script and run Manim CLI to render it.
 
     Returns (video_path_or_None, combined_stdout_stderr).
     """
     import subprocess
-    import sys
 
     script_path.write_text(script_content, encoding="utf-8")
     logger.info("Manim script saved to %s", script_path)
@@ -312,8 +349,9 @@ def _render_video(script_content: str, script_path: Path) -> tuple[Optional[str]
     env = os.environ.copy()
     _ensure_ffmpeg_in_env(env)
 
+    python_exe = _find_manim_python()
     cmd = [
-        sys.executable, "-m", "manim",
+        python_exe, "-m", "manim",
         "render",
         "-ql",                   # 480p15 — fast render
         "--format", "mp4",
@@ -340,26 +378,28 @@ def _render_video(script_content: str, script_path: Path) -> tuple[Optional[str]
 
     combined = f"=== STDOUT ===\n{proc.stdout}\n=== STDERR ===\n{proc.stderr}"
 
-    if proc.returncode != 0:
-        logger.error("Manim render failed (exit %d):\n%s", proc.returncode, combined)
-        return None, combined
-
-    logger.info("Manim finished successfully.")
-
-    # Locate the rendered mp4
-    # Manim writes to: <media_dir>/videos/<script_stem>/480p15/MathSolution.mp4
+    # IMPORTANT: always look for the video FIRST before trusting the exit code.
+    # Manim exits with code 1 on non-fatal warnings (e.g. MiKTeX update notices)
+    # even when the video was successfully written.
     video_dir = media_dir / "videos" / script_path.stem / "480p15"
     if video_dir.exists():
         mp4s = sorted(video_dir.glob("*.mp4"), key=lambda p: p.stat().st_mtime, reverse=True)
         if mp4s:
+            logger.info("Manim video ready: %s (exit code %d)", mp4s[0], proc.returncode)
             return str(mp4s[0]), combined
 
     # Fallback: most-recently-modified mp4 anywhere under media_dir
     all_mp4s = sorted(media_dir.glob("**/*.mp4"), key=lambda p: p.stat().st_mtime, reverse=True)
     if all_mp4s:
+        logger.info("Manim video (fallback): %s (exit code %d)", all_mp4s[0], proc.returncode)
         return str(all_mp4s[0]), combined
 
-    return None, combined + "\n\n[No .mp4 produced despite exit code 0]"
+    # No video found — now the exit code matters
+    if proc.returncode != 0:
+        logger.error("Manim render failed (exit %d):\n%s", proc.returncode, combined)
+    else:
+        logger.error("Manim exited 0 but no .mp4 was found.\n%s", combined)
+    return None, combined
 
 
 def generate_visualization(
