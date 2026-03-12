@@ -1,0 +1,58 @@
+# Linear Algebra — Key Formulas and Concepts for JEE
+
+## Matrices
+### Types
+- Square matrix: m = n
+- Diagonal matrix: non-zero only on main diagonal
+- Identity matrix I: diagonal entries = 1, rest = 0
+- Symmetric: A = Aᵀ
+- Skew-symmetric: A = -Aᵀ (diagonal entries = 0)
+- Orthogonal: AᵀA = AAᵀ = I
+
+### Operations
+- (AB)ᵀ = BᵀAᵀ
+- (AB)⁻¹ = B⁻¹A⁻¹
+- A(B + C) = AB + AC
+
+## Determinants
+### 2×2
+det([[a,b],[c,d]]) = ad - bc
+
+### 3×3 (Sarrus / cofactor expansion)
+det(A) = a₁₁(a₂₂a₃₃ - a₂₃a₃₂) - a₁₂(a₂₁a₃₃ - a₂₃a₃₁) + a₁₃(a₂₁a₃₂ - a₂₂a₃₁)
+
+### Properties
+- det(AB) = det(A)det(B)
+- det(Aᵀ) = det(A)
+- det(kA) = kⁿ det(A) for n×n matrix
+- det(A⁻¹) = 1/det(A)
+- Row/column swap changes sign
+- Two identical rows/columns → det = 0
+- det = 0 ⟺ matrix is singular (non-invertible)
+
+## Inverse of Matrix
+A⁻¹ = adj(A) / det(A), provided det(A) ≠ 0
+where adj(A) = transpose of cofactor matrix
+
+### 2×2 Inverse
+A = [[a,b],[c,d]]
+A⁻¹ = (1/(ad-bc)) × [[d,-b],[-c,a]]
+
+## System of Linear Equations (Cramer's Rule)
+For Ax = b:
+- If det(A) ≠ 0: unique solution, x = A⁻¹b
+- If det(A) = 0 and adj(A)×b = 0: infinitely many solutions
+- If det(A) = 0 and adj(A)×b ≠ 0: no solution
+
+## Eigenvalues and Eigenvectors
+- Characteristic equation: det(A - λI) = 0
+- Eigenvalues are roots of the characteristic polynomial
+- Sum of eigenvalues = trace(A)
+- Product of eigenvalues = det(A)
+- Eigenvector: (A - λI)v = 0
+
+## Rank
+- Rank of A = number of non-zero rows in row echelon form
+- rank(A) = rank(Aᵀ)
+- rank(AB) ≤ min(rank(A), rank(B))
+- For m×n matrix: rank(A) ≤ min(m,n)

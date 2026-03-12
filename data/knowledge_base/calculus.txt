@@ -1,0 +1,66 @@
+# Calculus — Key Formulas and Concepts for JEE
+
+## Limits
+- lim(x→0) sin(x)/x = 1
+- lim(x→0) (1 - cos(x))/x² = 1/2
+- lim(x→0) tan(x)/x = 1
+- lim(x→0) (eˣ - 1)/x = 1
+- lim(x→0) ln(1+x)/x = 1
+- lim(x→∞) (1 + 1/x)ˣ = e
+- L'Hôpital's Rule: if lim f(x)/g(x) is 0/0 or ∞/∞, then lim f(x)/g(x) = lim f'(x)/g'(x)
+
+## Derivatives
+### Basic Rules
+- d/dx [xⁿ] = nxⁿ⁻¹
+- d/dx [eˣ] = eˣ
+- d/dx [aˣ] = aˣ ln(a)
+- d/dx [ln(x)] = 1/x
+- d/dx [sin(x)] = cos(x)
+- d/dx [cos(x)] = -sin(x)
+- d/dx [tan(x)] = sec²(x)
+
+### Chain Rule
+d/dx [f(g(x))] = f'(g(x)) × g'(x)
+
+### Product Rule
+d/dx [f(x)g(x)] = f'(x)g(x) + f(x)g'(x)
+
+### Quotient Rule
+d/dx [f(x)/g(x)] = [f'(x)g(x) - f(x)g'(x)] / [g(x)]²
+
+## Integrals
+### Basic Integrals
+- ∫ xⁿ dx = xⁿ⁺¹/(n+1) + C  (n ≠ -1)
+- ∫ 1/x dx = ln|x| + C
+- ∫ eˣ dx = eˣ + C
+- ∫ sin(x) dx = -cos(x) + C
+- ∫ cos(x) dx = sin(x) + C
+- ∫ sec²(x) dx = tan(x) + C
+- ∫ 1/(1+x²) dx = arctan(x) + C
+- ∫ 1/√(1-x²) dx = arcsin(x) + C
+
+### Integration Techniques
+- Substitution: ∫ f(g(x))g'(x) dx = ∫ f(u) du  where u = g(x)
+- Integration by parts: ∫ u dv = uv - ∫ v du  (LIATE rule for choosing u)
+- Partial fractions for rational functions
+
+### Definite Integrals Properties
+- ∫ₐᵇ f(x)dx = -∫ᵇₐ f(x)dx
+- ∫ₐᵇ f(x)dx = ∫ₐᶜ f(x)dx + ∫ᶜᵇ f(x)dx
+- King's rule: ∫₀ᵃ f(x)dx = ∫₀ᵃ f(a-x)dx
+
+## Applications
+- Maxima/Minima: f'(x) = 0, check f''(x) sign
+- Area under curve: A = ∫ₐᵇ f(x) dx
+- Area between curves: A = ∫ₐᵇ |f(x) - g(x)| dx
+
+## Mean Value Theorem
+If f is continuous on [a,b] and differentiable on (a,b):
+∃c ∈ (a,b) such that f'(c) = [f(b) - f(a)]/(b-a)
+
+## Taylor Series
+f(x) = Σ f⁽ⁿ⁾(a)/n! × (x-a)ⁿ for n = 0 to ∞
+
+Common: eˣ = 1 + x + x²/2! + x³/3! + …
+sin(x) = x - x³/3! + x⁵/5! - …
+cos(x) = 1 - x²/2! + x⁴/4! - …

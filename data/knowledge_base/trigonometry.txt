@@ -1,0 +1,49 @@
+# Trigonometry — Key Formulas and Concepts for JEE
+
+## Basic Identities
+- sin²θ + cos²θ = 1
+- 1 + tan²θ = sec²θ
+- 1 + cot²θ = csc²θ
+
+## Angle Sum/Difference
+- sin(A ± B) = sinA cosB ± cosA sinB
+- cos(A ± B) = cosA cosB ∓ sinA sinB
+- tan(A ± B) = (tanA ± tanB) / (1 ∓ tanA tanB)
+
+## Double Angle
+- sin(2A) = 2 sinA cosA
+- cos(2A) = cos²A - sin²A = 2cos²A - 1 = 1 - 2sin²A
+- tan(2A) = 2tanA / (1 - tan²A)
+
+## Half Angle
+- sin²(A/2) = (1 - cosA)/2
+- cos²(A/2) = (1 + cosA)/2
+
+## Product to Sum
+- 2 sinA cosB = sin(A+B) + sin(A-B)
+- 2 cosA cosB = cos(A-B) + cos(A+B)
+- 2 sinA sinB = cos(A-B) - cos(A+B)
+
+## Sum to Product
+- sinA + sinB = 2 sin((A+B)/2) cos((A-B)/2)
+- sinA - sinB = 2 cos((A+B)/2) sin((A-B)/2)
+- cosA + cosB = 2 cos((A+B)/2) cos((A-B)/2)
+- cosA - cosB = -2 sin((A+B)/2) sin((A-B)/2)
+
+## Inverse Trigonometric Functions
+- arcsin(x) + arccos(x) = π/2
+- arctan(x) + arccot(x) = π/2
+- arctan(x) + arctan(y) = arctan((x+y)/(1-xy)) when xy < 1
+
+## Triangle Properties (for triangle with sides a, b, c and angles A, B, C)
+- Sine rule: a/sinA = b/sinB = c/sinC = 2R
+- Cosine rule: c² = a² + b² - 2ab cosC
+- Area = (1/2)ab sinC = √(s(s-a)(s-b)(s-c)) (Heron's formula)
+  where s = (a+b+c)/2
+
+## Important Values
+| θ   | 0°  | 30°  | 45°   | 60°  | 90° |
+|-----|-----|------|-------|------|-----|
+| sin | 0   | 1/2  | 1/√2  | √3/2 | 1   |
+| cos | 1   | √3/2 | 1/√2  | 1/2  | 0   |
+| tan | 0   | 1/√3 | 1     | √3   | ∞   |

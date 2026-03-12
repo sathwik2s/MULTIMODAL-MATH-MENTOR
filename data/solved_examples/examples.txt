@@ -1,0 +1,38 @@
+# Solved JEE Math Examples
+
+## Example 1: Quadratic Equation
+**Problem:** Solve x² - 5x + 6 = 0
+**Solution:**
+Factor: (x-2)(x-3) = 0
+Therefore x = 2 or x = 3
+**Verification:** 2² - 5(2) + 6 = 4-10+6 = 0 ✓ and 3² - 5(3) + 6 = 9-15+6 = 0 ✓
+
+## Example 2: Definite Integral
+**Problem:** Evaluate ∫₀^π sin(x) dx
+**Solution:**
+∫ sin(x) dx = -cos(x)
+[-cos(x)]₀^π = -cos(π) - (-cos(0)) = -(-1) - (-1) = 1 + 1 = 2
+**Answer:** 2
+
+## Example 3: Probability
+**Problem:** A bag contains 3 red and 5 blue balls. Two balls are drawn without replacement. Find P(both red).
+**Solution:**
+P(1st red) = 3/8
+P(2nd red | 1st red) = 2/7
+P(both red) = 3/8 × 2/7 = 6/56 = 3/28
+**Answer:** 3/28
+
+## Example 4: Matrix Determinant
+**Problem:** Find det([[2,1],[4,3]])
+**Solution:**
+det = (2)(3) - (1)(4) = 6 - 4 = 2
+**Answer:** 2
+
+## Example 5: Derivative
+**Problem:** Find d/dx [x³ sin(x)]
+**Solution:**
+Using product rule: d/dx[f(x)g(x)] = f'(x)g(x) + f(x)g'(x)
+f(x) = x³, f'(x) = 3x²
+g(x) = sin(x), g'(x) = cos(x)
+d/dx [x³ sin(x)] = 3x² sin(x) + x³ cos(x)
+**Answer:** 3x² sin(x) + x³ cos(x)

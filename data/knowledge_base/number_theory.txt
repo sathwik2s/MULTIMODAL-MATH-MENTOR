@@ -1,0 +1,41 @@
+# Number Theory — Key Concepts for JEE
+
+## Divisibility
+- a | b means b = ka for some integer k
+- If a | b and a | c, then a | (b ± c)
+- If a | b, then a | (bc) for any integer c
+
+## GCD and LCM
+- gcd(a,b) × lcm(a,b) = |a × b|
+- Euclidean algorithm: gcd(a,b) = gcd(b, a mod b)
+- Two numbers are coprime if gcd(a,b) = 1
+
+## Modular Arithmetic
+- a ≡ b (mod n) means n | (a-b)
+- (a + b) mod n = ((a mod n) + (b mod n)) mod n
+- (a × b) mod n = ((a mod n) × (b mod n)) mod n
+
+## Fermat's Little Theorem
+If p is prime and gcd(a,p) = 1:
+aᵖ⁻¹ ≡ 1 (mod p)
+
+## Euler's Theorem
+If gcd(a,n) = 1:
+a^φ(n) ≡ 1 (mod n)
+where φ(n) = n × ∏(1 - 1/p) for all prime factors p of n
+
+## Important Results
+- Number of divisors of n = p₁^a₁ × p₂^a₂ × … : (a₁+1)(a₂+1)…
+- Sum of divisors: ∏ (pᵢ^(aᵢ+1) - 1)/(pᵢ - 1)
+- Wilson's theorem: (p-1)! ≡ -1 (mod p) for prime p
+
+## Floor and Ceiling
+- ⌊x⌋ = greatest integer ≤ x
+- ⌈x⌉ = smallest integer ≥ x
+- ⌊x⌋ ≤ x < ⌊x⌋ + 1
+- Legendre's formula: highest power of prime p dividing n! = Σ⌊n/pᵏ⌋ for k = 1,2,3,…
+
+## Principle of Mathematical Induction
+1. Base case: Prove P(1) is true.
+2. Inductive step: Assume P(k) is true, prove P(k+1) is true.
+3. Conclusion: P(n) is true for all n ≥ 1.

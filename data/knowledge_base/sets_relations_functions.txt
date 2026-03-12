@@ -1,0 +1,41 @@
+# Sets, Relations, and Functions — Key Concepts for JEE
+
+## Sets
+- Union: A ∪ B = {x : x ∈ A or x ∈ B}
+- Intersection: A ∩ B = {x : x ∈ A and x ∈ B}
+- Complement: A' = U \ A
+- De Morgan's Laws: (A ∪ B)' = A' ∩ B', (A ∩ B)' = A' ∪ B'
+- n(A ∪ B) = n(A) + n(B) - n(A ∩ B)
+- n(A ∪ B ∪ C) = n(A) + n(B) + n(C) - n(A∩B) - n(B∩C) - n(A∩C) + n(A∩B∩C)
+
+## Relations
+- Reflexive: (a,a) ∈ R for all a
+- Symmetric: (a,b) ∈ R → (b,a) ∈ R
+- Transitive: (a,b) ∈ R and (b,c) ∈ R → (a,c) ∈ R
+- Equivalence relation: reflexive + symmetric + transitive
+
+## Functions
+- One-to-one (injective): f(a) = f(b) → a = b
+- Onto (surjective): every element in codomain has a preimage
+- Bijective: both injective and surjective (inverse exists)
+- Number of functions from A to B: |B|^|A|
+- Number of injective functions: P(|B|, |A|) when |B| ≥ |A|
+- Number of surjective functions: uses inclusion-exclusion
+
+## Important Functions
+- Identity: f(x) = x
+- Constant: f(x) = c
+- Modulus: |x| = x if x≥0, -x if x<0
+- Greatest integer: ⌊x⌋ = largest integer ≤ x
+- Fractional part: {x} = x - ⌊x⌋, always in [0,1)
+- Signum: sgn(x) = 1 if x>0, 0 if x=0, -1 if x<0
+
+## Composition
+- (f ∘ g)(x) = f(g(x))
+- Generally not commutative: f ∘ g ≠ g ∘ f
+- Associative: f ∘ (g ∘ h) = (f ∘ g) ∘ h
+
+## Inverse
+- f⁻¹ exists iff f is bijective
+- f(f⁻¹(x)) = x and f⁻¹(f(x)) = x
+- Graph of f⁻¹ is reflection of f about y = x

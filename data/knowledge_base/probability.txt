@@ -1,0 +1,49 @@
+# Probability — Key Formulas and Concepts for JEE
+
+## Basic Probability
+- P(A) = number of favourable outcomes / total outcomes
+- 0 ≤ P(A) ≤ 1
+- P(A') = 1 - P(A) (complement)
+
+## Addition Rule
+- P(A ∪ B) = P(A) + P(B) - P(A ∩ B)
+- For mutually exclusive events: P(A ∪ B) = P(A) + P(B)
+
+## Conditional Probability
+- P(A|B) = P(A ∩ B) / P(B), provided P(B) > 0
+- Multiplication rule: P(A ∩ B) = P(A|B) × P(B) = P(B|A) × P(A)
+
+## Independent Events
+- A and B are independent iff P(A ∩ B) = P(A) × P(B)
+
+## Bayes' Theorem
+P(Aᵢ|B) = P(B|Aᵢ)P(Aᵢ) / Σ P(B|Aⱼ)P(Aⱼ)
+
+## Permutations and Combinations
+- nPr = n! / (n-r)!
+- nCr = n! / (r!(n-r)!)
+- nCr = nC(n-r)
+- nCr + nC(r-1) = (n+1)Cr  (Pascal's identity)
+
+## Binomial Distribution
+X ~ Bin(n, p)
+- P(X = k) = C(n,k) × pᵏ × (1-p)ⁿ⁻ᵏ
+- E[X] = np
+- Var(X) = np(1-p)
+
+## Poisson Distribution
+X ~ Poisson(λ)
+- P(X = k) = e⁻λ × λᵏ / k!
+- E[X] = Var(X) = λ
+
+## Expected Value & Variance
+- E[X] = Σ xᵢP(X = xᵢ)
+- Var(X) = E[X²] - (E[X])²
+- E[aX + b] = aE[X] + b
+- Var(aX + b) = a²Var(X)
+
+## Important Counting Principles
+- Multiplication principle: If task 1 can be done in m ways and task 2 in n ways, both together in m×n ways.
+- Division into groups: n! / (n₁!n₂!…nₖ!) for dividing n objects into groups of sizes n₁, n₂, …, nₖ.
+- Circular permutations: (n-1)!
+- Derangements: D(n) = n! Σ (-1)ᵏ/k! for k = 0 to n

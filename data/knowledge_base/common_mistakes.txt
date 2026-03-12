@@ -1,0 +1,52 @@
+# Common Mistakes in JEE Mathematics
+
+## Algebra Mistakes
+
+### Quadratic Equations
+- MISTAKE: Forgetting to check discriminant before claiming real roots.
+- MISTAKE: Losing a root when dividing both sides by a variable (e.g. dividing by x when x=0 is a solution).
+- MISTAKE: Incorrectly applying Vieta's formulas — confusing sum and product signs.
+
+### Logarithms
+- MISTAKE: Applying log to negative numbers or zero.
+- MISTAKE: log(a+b) ≠ log(a) + log(b). Logs distribute over multiplication, NOT addition.
+- MISTAKE: Forgetting domain restrictions: log_a(x) requires x > 0 and a > 0, a ≠ 1.
+
+### Sequences & Series
+- MISTAKE: Confusing AP and GP formulas.
+- MISTAKE: Using sum-to-infinity formula when |r| ≥ 1.
+- MISTAKE: Off-by-one error in counting terms.
+
+## Calculus Mistakes
+
+### Differentiation
+- MISTAKE: Forgetting the chain rule when differentiating composite functions.
+- MISTAKE: d/dx[f(x)g(x)] ≠ f'(x)g'(x). Must use product rule.
+- MISTAKE: Not simplifying before differentiating (missing easier approaches).
+
+### Integration
+- MISTAKE: Forgetting the constant of integration C in indefinite integrals.
+- MISTAKE: Incorrect substitution — forgetting to change the limits in definite integrals.
+- MISTAKE: Using integration by parts with wrong choice of u and dv.
+
+### Limits
+- MISTAKE: Directly substituting into indeterminate forms (0/0, ∞/∞) without applying L'Hôpital or algebraic manipulation.
+- MISTAKE: Applying L'Hôpital's rule when the form is NOT indeterminate.
+
+## Probability Mistakes
+- MISTAKE: Confusing permutations and combinations.
+- MISTAKE: Forgetting to consider complementary counting.
+- MISTAKE: P(A ∪ B) ≠ P(A) + P(B) unless A and B are mutually exclusive.
+- MISTAKE: Assuming independence without verification.
+
+## Linear Algebra Mistakes
+- MISTAKE: Matrix multiplication is NOT commutative: AB ≠ BA in general.
+- MISTAKE: Forgetting that det(kA) = kⁿ det(A) for n×n matrix.
+- MISTAKE: Assuming inverse exists without checking det ≠ 0.
+- MISTAKE: Wrong cofactor signs in determinant expansion.
+
+## General Mistakes
+- Not reading the question carefully — missing constraints like "positive integers" or "x > 0".
+- Not checking answers by substitution.
+- Arithmetic errors in final computation.
+- Not considering edge cases (x = 0, division by zero, etc.).

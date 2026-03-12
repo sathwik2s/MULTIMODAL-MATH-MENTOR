@@ -1,0 +1,49 @@
+# Vectors and 3D Geometry — Key Concepts for JEE
+
+## Vector Basics
+- Position vector of point P(x,y,z): OP = xî + yĵ + zk̂
+- Magnitude: |a| = √(a₁² + a₂² + a₃²)
+- Unit vector: â = a/|a|
+
+## Operations
+- Addition: a + b = (a₁+b₁, a₂+b₂, a₃+b₃)
+- Scalar multiplication: ka = (ka₁, ka₂, ka₃)
+
+## Dot Product (Scalar Product)
+- a · b = a₁b₁ + a₂b₂ + a₃b₃ = |a||b|cosθ
+- a · b = 0 ⟺ a ⊥ b (perpendicular)
+- Projection of a on b = (a · b)/|b|
+
+## Cross Product (Vector Product)
+- a × b = |î  ĵ  k̂; a₁ a₂ a₃; b₁ b₂ b₃|
+- |a × b| = |a||b|sinθ
+- a × b = 0 ⟺ a ∥ b (parallel)
+- Area of parallelogram = |a × b|
+- Area of triangle = (1/2)|a × b|
+
+## Scalar Triple Product
+[a b c] = a · (b × c) = det([a₁ a₂ a₃; b₁ b₂ b₃; c₁ c₂ c₃])
+- Volume of parallelepiped = |[a b c]|
+- Coplanar vectors ⟺ [a b c] = 0
+
+## 3D Geometry
+
+### Direction Cosines
+For direction (l, m, n): l² + m² + n² = 1
+Direction ratios: (a, b, c) proportional to (l, m, n)
+
+### Equation of Line
+- Passing through point (x₁,y₁,z₁) with direction (a,b,c):
+  (x-x₁)/a = (y-y₁)/b = (z-z₁)/c
+- Vector form: r = a + λb
+
+### Equation of Plane
+- General: ax + by + cz + d = 0  (normal vector is (a,b,c))
+- Intercept form: x/a + y/b + z/c = 1
+- Vector form: r · n = d
+- Distance from point (x₁,y₁,z₁) to plane: |ax₁+by₁+cz₁+d|/√(a²+b²+c²)
+
+### Angle Between
+- Two lines: cosθ = |l₁l₂+m₁m₂+n₁n₂|
+- Two planes: cosθ = |a₁a₂+b₁b₂+c₁c₂|/(√(a₁²+b₁²+c₁²)×√(a₂²+b₂²+c₂²))
+- Line and plane: sinθ = |al+bm+cn|/(√(a²+b²+c²)×√(l²+m²+n²))

@@ -1,0 +1,36 @@
+# Coordinate Geometry — Key Formulas for JEE
+
+## Straight Lines
+- Slope: m = (y₂-y₁)/(x₂-x₁)
+- Slope-intercept form: y = mx + c
+- Point-slope form: y - y₁ = m(x - x₁)
+- Two-point form: (y-y₁)/(y₂-y₁) = (x-x₁)/(x₂-x₁)
+- Intercept form: x/a + y/b = 1
+- General form: ax + by + c = 0
+- Distance of point (x₁,y₁) from line ax+by+c=0: |ax₁+by₁+c|/√(a²+b²)
+- Angle between two lines: tan(θ) = |m₁-m₂|/(1+m₁m₂)
+- Parallel lines: m₁ = m₂
+- Perpendicular lines: m₁m₂ = -1
+
+## Circles
+- Standard form: (x-h)² + (y-k)² = r²  (centre (h,k), radius r)
+- General form: x² + y² + 2gx + 2fy + c = 0  (centre (-g,-f), radius √(g²+f²-c))
+- Equation of tangent at (x₁,y₁): xx₁ + yy₁ + g(x+x₁) + f(y+y₁) + c = 0
+
+## Parabola
+- y² = 4ax: Vertex at origin, focus (a,0), directrix x=-a
+- x² = 4ay: Vertex at origin, focus (0,a), directrix y=-a
+- Parametric: (at², 2at) for y²=4ax
+
+## Ellipse
+- x²/a² + y²/b² = 1 (a > b)
+- Eccentricity: e = √(1 - b²/a²), 0 < e < 1
+- Foci: (±ae, 0)
+- Sum of focal distances = 2a
+
+## Hyperbola
+- x²/a² - y²/b² = 1
+- Eccentricity: e = √(1 + b²/a²), e > 1
+- Foci: (±ae, 0)
+- Asymptotes: y = ±(b/a)x
+- |Difference of focal distances| = 2a
